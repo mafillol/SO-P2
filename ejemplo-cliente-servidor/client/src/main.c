@@ -19,8 +19,8 @@ char * get_input(){
 
 int main (int argc, char *argv[]){
   //Se obtiene la ip y el puerto donde está escuchando el servidor (la ip y puerto de este cliente da igual)
-  char * IP = "0.0.0.0";
-  int PORT = 8080;
+  char * IP = "0.0.0.1";
+  int PORT = 8070;
 
   // Se prepara el socket
   int server_socket = prepare_socket(IP, PORT);

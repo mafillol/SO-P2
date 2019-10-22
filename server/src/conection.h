@@ -14,12 +14,6 @@ typedef struct players_info{
   int socket_c2;
 } PlayersInfo;
 
-typedef struct player
-{
-	/** Nombre de usuario del jugador*/
-	char* name;
-	/** Puntos del jugador*/
-	int points;
-} Player;
+
 
 PlayersInfo * prepare_sockets_and_get_clients(char * IP, int port);

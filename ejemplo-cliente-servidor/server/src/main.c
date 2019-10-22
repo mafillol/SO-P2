@@ -18,8 +18,8 @@ char * revert(char * message){
 
 int main(int argc, char *argv[]){
   // Se define una IP y un puerto
-  char * IP = "0.0.0.0";
-  int PORT = 8080;
+  char * IP = "0.0.0.1";
+  int PORT = 8070;
 
   // Se crea el servidor y se obtienen los sockets de ambos clientes.
   PlayersInfo * players_info = prepare_sockets_and_get_clients(IP, PORT);
