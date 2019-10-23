@@ -24,12 +24,17 @@ typedef struct player
 	int id;
 
 	int socket;
+
+	int aim;
+	
 } Player;
 
 typedef struct game{
 	Player** players;
 	Status estado;
 	int n_players;
+	int partida;
+	char* answer;
 } Game;
 
 

@@ -9,6 +9,7 @@ Player* init_player(char* name,int ID){
 	strcpy(p->name, name);
 	p->points = 0;
 	p->id = ID;
+	p->aim = 0;
 	return p;
 }
 
@@ -16,6 +17,7 @@ Player* init_player(char* name,int ID){
 Game* init_game(){
 	Game* g = malloc(sizeof(Game));
 	g->n_players = 0;
+	g->partida = 1;
 	g->players =(Player**) malloc(2 * sizeof(Player*));
 	return g;
 }
