@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <unistd.h>
 #include "conection.h"
 #include "comunication.h"
 
@@ -28,61 +29,61 @@ int main (int argc, char *argv[]){
 
   // Se prepara el socket
   int server_socket = prepare_socket(IP, PORT);
-  bool start = false;
-  bool end = false;
 
-  client_send_message(server_socket,1, "");
+  //Se avisa al servidor que queremos conectarnos
+  client_send_message(server_socket, 1 , "\0");
   // Se inicializa un loop para recibir todo tipo de paquetes y tomar una acción al respecto
   while (1){
-    
     int msg_code = client_receive_id(server_socket);
 
-    //Establecemos coneccion con el servidor
+    //Establecemos conexion con el servidor
     if (msg_code == 2) { 
-      printf("Connexion establecida con servidor...\n");
+      printf("Conexion establecida con servidor...\n");
     }
 
     //Establecemos un nickname
-    if (msg_code == 3) { 
+    else if (msg_code == 3) { 
       printf("Ingrese un nick para la partida:\t");
       char* name = get_input();
       client_send_message(server_socket, 4, name);
     }
     //Se encontro oponente para la partida
-    if (msg_code == 5) { 
-    char * message = client_receive_payload(server_socket);
-    printf("Partida iniciada con contrincante: %s\n", message);
-    free(message);
+    else if (msg_code == 5) { 
+      char * message = client_receive_payload(server_socket);
+      printf("Partida iniciada con contrincante: %s\n", message);
+      free(message);
     }
 
     //Servidor envia ID
-    if(msg_code == 6){
+    else if(msg_code == 6){
       char * message = client_receive_payload(server_socket);
       printf("Tu id personal es: %s\n", message);
       ID = (int) strtol(message, (char **)NULL, 10);
       free(message);
     }
+
     //Partida iniciada correctamente
-    if(msg_code == 7){
+    else if(msg_code == 7){
       char * message = client_receive_payload(server_socket);
       printf("Partida %s iniciada.\n", message);
       free(message);
     }
 
     //Se desplegan los puntajes de los jugadores
-    if(msg_code == 8){
+    else if(msg_code == 8){
       char * message = client_receive_payload(server_socket);
       printf("Tu puntaje es: %c\tEl puntaje de tu contrincante es: %c\n", message[0],message[1]);
       free(message);
     }
 
     //Se envían las cartas
-    if(msg_code == 9){
+    else if(msg_code == 9){
       // Funcion para imprimir cartas
+      printf("INCOMPLETO :(\n");
     }
 
     //Resultado de respuesta
-    if(msg_code == 11){
+    else if(msg_code == 11){
       char * message = client_receive_payload(server_socket);
       int response = message[0] - '0';
       int aim = message[1] - '0';
@@ -99,7 +100,7 @@ int main (int argc, char *argv[]){
     }
 
     //Ronda terminada
-    if(msg_code == 12){
+    else if(msg_code == 12){
       char * message = client_receive_payload(server_socket);
       int response = (int) strtol(message, (char **)NULL, 10);
 
@@ -120,14 +121,14 @@ int main (int argc, char *argv[]){
     }
 
     //Partida terminada
-    if(msg_code == 13){
+    else if(msg_code == 13){
       char * message = client_receive_payload(server_socket);
       printf("Partida %s terminada.\n", message);
       free(message);
     }
 
     //Ganador de la partida
-    if(msg_code == 14){
+    else if(msg_code == 14){
       char * message = client_receive_payload(server_socket);
       int response = (int) strtol(message, (char **)NULL, 10);
       //Partida ganada
@@ -142,7 +143,7 @@ int main (int argc, char *argv[]){
     }
 
     //Pregunta por un nuevo juego
-    if(msg_code == 15){
+    else if(msg_code == 15){
       char * message = client_receive_payload(server_socket);
       bool answer = false;
       while(!answer){
@@ -161,20 +162,21 @@ int main (int argc, char *argv[]){
           client_send_message(server_socket,17, "");
           answer = true;
         }
+      }
     }
     
     //Nos desconectan 
-    if(msg_code == 17){
+    else if(msg_code == 17){
       printf("Desconectando del servidor...\n");
       ID = 0;    
     }
 
-    if(msg_code == 20){
+    //Error del servidor
+    else if(msg_code == 20){
       printf("ERROR: ID desconocido o paquete mal contruido\n");
     }
 
     printf("------------------\n");
-    }
   }
 
   // Se cierra el socket

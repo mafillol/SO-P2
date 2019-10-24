@@ -2,13 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/time.h>
 #include "comunication.h"
 #include "conection.h"
 #include "paquete.h"
 #include "player.h"
 
-int ID = 0;
+uint8_t ID = 0;
 
 char * revert(char * message){
   int len = strlen(message) + 1;
@@ -29,13 +30,12 @@ int main(int argc, char *argv[]){
   Game* game = NULL;
   // Se crea el servidor y se obtienen los sockets de ambos clientes.
   PlayersInfo * players_info = prepare_sockets_and_get_clients(IP, PORT);
-  printf("Sockets listos\n");
+
   // Guardaremos los sockets en un arreglo e iremos alternando a quién escuchar.
   int sockets_array[2] = {players_info->socket_c1, players_info->socket_c2};
   int my_attention = 0;
   while (1)
   {
-    printf("Vamos aqui\n");
     // Se obtiene el paquete de uno de los clientes
     int msg_code = server_receive_id(sockets_array[my_attention]);
     printf("Mensaje : %d\n", msg_code);
@@ -43,17 +43,18 @@ int main(int argc, char *argv[]){
      /** El cliente desea inicar una partida*/
     if (msg_code == 1)
     { 
-      if(game->n_players<2){
-        char* response = "";
-        server_send_message(sockets_array[my_attention], 2, response);
-        //Preguntamos por el nickname
-        response = ask_nickname();
-        server_send_message(sockets_array[my_attention], 3, response);      
-      }
+      char * client_message = server_receive_payload(sockets_array[my_attention]);
+
+      //Avisamos que se establecio la conexion
+      server_send_message(sockets_array[my_attention], 2, "");
+      //Preguntamos por el nickname
+      server_send_message(sockets_array[my_attention], 3, "");
+
+      free(client_message);
     }
 
     /** El cliente establece un nickname*/
-    else if (msg_code == 4){
+    if (msg_code == 4){
       char * client_message = server_receive_payload(sockets_array[my_attention]);
       ID ++;
       Player* p = init_player(client_message, ID);
@@ -63,10 +64,17 @@ int main(int argc, char *argv[]){
       game->players[game->n_players] = p;
       game->n_players++;
 
+      char response[1];
+      sprintf(response, "%d", p->id);
+
+      //Enviamos el id del jugador
+      server_send_message(sockets_array[my_attention], 6, response);
+
       //Si se encuentra un contrincante
       if(game->n_players>=2){
         int adversario = (my_attention + 1) % 2;
         char* response = p->name;
+
         //Avisamos que se encontro un contrincante
         server_send_message(sockets_array[adversario], 5, response);
 
@@ -77,13 +85,18 @@ int main(int argc, char *argv[]){
           server_send_message(sockets_array[i], 7, response);
         }
       }
+      free(client_message);
     }
 
     /** El cliente manda una palabra respuesta*/
-    else if(msg_code == 10){
+    if(msg_code == 10){
+      char * client_message = server_receive_payload(sockets_array[my_attention]);
       //Si ya no tiene intentos
       Player* p = game->players[my_attention];
-      if(p->aim < 3)
+      if(p->aim < 3){
+        printf("INCOMPLETO :(\n");
+      }
+      free(client_message);
     }
     printf("------------------\n");
     // Mi atención cambia al otro socket

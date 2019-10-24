@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 
 /** Representa el estado de una partida*/
@@ -17,15 +18,17 @@ typedef enum status Status;
 typedef struct player
 {
 	/** Nombre de usuario del jugador*/
-	char* name;
+	char name[1024];
 	/** Puntos del jugador*/
 	int points;
 
-	int id;
+	uint8_t round_point;
+
+	uint8_t id;
 
 	int socket;
 
-	int aim;
+	uint8_t aim;
 	
 } Player;
 
@@ -33,13 +36,16 @@ typedef struct game{
 	Player** players;
 	Status estado;
 	int n_players;
-	int partida;
+	uint8_t partida;
+	uint8_t round;
 	char* answer;
 } Game;
 
 
 
-Player* init_player(char* name,int ID);
+Player* init_player(char* name,uint8_t ID);
+
+void destroy_player(Player* p);
 
 Game* init_game();
 
