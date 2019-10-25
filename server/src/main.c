@@ -10,6 +10,7 @@
 #include "player.h"
 
 uint8_t ID = 0;
+char* file_words = "palabras.txt";
 
 char * revert(char * message){
   int len = strlen(message) + 1;
@@ -28,6 +29,14 @@ int main(int argc, char *argv[]){
   char * IP = "127.0.1.1";
   int PORT = 8070;
   Game* game = NULL;
+
+  char** cards = get_random_cards(file_words);
+
+  for(int i=0; i<19;i++){
+    printf("%s\n", cards[i]);
+  }
+
+
   // Se crea el servidor y se obtienen los sockets de ambos clientes.
   PlayersInfo * players_info = prepare_sockets_and_get_clients(IP, PORT);
 
