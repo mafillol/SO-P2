@@ -1,6 +1,9 @@
 #include "paquete.h"
 
 
+/** Retorna un la lista de strings, el primero es la respuesta 
+y el segundo es un string largo con las 20 palabras*/
+
 char** get_random_cards(char* file_name){
 
 	//Inicializo variables auxiliares para leer el archivo
@@ -63,6 +66,8 @@ char** get_random_cards(char* file_name){
 		}
 	}
 
+	char* answer = (char*) calloc(500,sizeof(char));
+
 	//Para todas las filas de cartas
 	for(int i=0; i<20; i++){
 
@@ -79,6 +84,9 @@ char** get_random_cards(char* file_name){
 			total_size = total_size + largo + 2;
 
 			strcpy(cards[i], cards[random_card]);
+
+			//Guardamos el string respuesta para facilitar el juego
+			strncpy(answer, &cards[random_card][1], largo);
 
 			//Columna random para la carta repetida
 			uint8_t random_col = rand() % 20;
@@ -100,6 +108,7 @@ char** get_random_cards(char* file_name){
 
 	//Armamos la respuesta
 	char** payload = (char**) calloc(2,sizeof(char*));
+	payload[0] = answer;
 	payload[1] = long_string;
 
 
@@ -125,6 +134,7 @@ char** get_random_cards(char* file_name){
 	return payload;
 }
 
+/** Funcion auxiliar para imprimir las palabras*/
 void print_word(char* w){
 
 	int largo = w[0];
@@ -137,6 +147,7 @@ void print_word(char* w){
 	printf(" %d\n", pos_random);
 }
 
+/** Funcion auxiliar para imprimir las palabras unidas en un largo string*/
 void print_words(char* long_string){
 	int aux = 0;
 	int count = 0;
