@@ -3,12 +3,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h> 
-
+#include <stdbool.h>
+#include <stdint.h>
 
 char* ask_nickname();
 
 char** get_random_cards(char* file_name);
+
+void print_word(char* w);
+
+void print_words(char* long_string);
 
 //Funcion auxiliar. Quita el salto de linea a un string
 //Obtenida del link: 
