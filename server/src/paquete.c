@@ -111,9 +111,6 @@ char** get_random_cards(char* file_name){
 	payload[0] = answer;
 	payload[1] = long_string;
 
-
-	print_words(long_string);
-
 	//Liberamos la linea de lectura del archivo
 	free(line);
 	//Cerramos el archivo

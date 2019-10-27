@@ -8,6 +8,7 @@ Player* init_player(char* name,uint8_t ID){
 	p->round_point = 0;
 	p->id = ID;
 	p->aim = 0;
+	p->answer = false;
 	return p;
 }
 
@@ -26,6 +27,12 @@ Game* init_game(){
 void destroy_game(Game* game){
 	for(int i= 0; i<game->n_players; i++){
 		destroy_player(game->players[i]);
+	}
+	if(game->answer){
+		free(game->answer);
+	}
+	if(game->words){
+		free(game->words);
 	}
 	free(game);
 }

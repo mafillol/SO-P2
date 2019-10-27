@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 
 /** Representa el estado de una partida*/
@@ -29,16 +30,26 @@ typedef struct player
 	int socket;
 
 	uint8_t aim;
+
+	bool answer;
 	
 } Player;
 
 typedef struct game{
 	Player** players;
+
 	Status estado;
+
 	int n_players;
+
 	uint8_t partida;
+
 	uint8_t round;
+
 	char* answer;
+
+	char* words;
+
 } Game;
 
 

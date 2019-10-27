@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "conection.h"
 #include "comunication.h"
+#include "functions.h"
 
 int ID;
 
@@ -20,7 +21,6 @@ char * get_input(){
   response[pos] = '\0';
   return response;
 }
-
 
 int main (int argc, char *argv[]){
   //Se obtiene la ip y el puerto donde está escuchando el servidor (la ip y puerto de este cliente da igual)
@@ -78,15 +78,22 @@ int main (int argc, char *argv[]){
 
     //Se envían las cartas
     else if(msg_code == 9){
-      // Funcion para imprimir cartas
-      printf("INCOMPLETO :(\n");
+      char * message = client_receive_payload(server_socket);
+      // Imprimimos las cartas
+      print_cards(message);
+      // Pedimos respuesta del cliente
+      printf("\nIngrese la palabra repetida:\t");
+      char* response = get_input();
+      // Enviamos respuesta al servidor
+      client_send_message(server_socket, 10, response);
+      free(message);
     }
 
     //Resultado de respuesta
     else if(msg_code == 11){
       char * message = client_receive_payload(server_socket);
-      int response = message[0] - '0';
-      int aim = message[1] - '0';
+      int response = message[0];
+      int aim = message[1];
 
       //Respuesta incorrecta
       if(response == 0){
