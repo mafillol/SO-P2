@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-
+#include <ctype.h>
 
 //////////////////////////////////////////
 ///         FUNCIONES PRIVADAS         ///
@@ -32,4 +32,18 @@ void strip(char* string);
 y el segundo es un string largo con las 20 palabras*/
 char** get_random_cards(char* file_name);
 
+/** Convierte el string en uppercase*/
+//Obtenida del link:
+//https://stackoverflow.com/questions/35181913/converting-char-to-uppercase-in-c
+void uppercase(char* word);
 
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+// IMPORTANTE - REFERENCIA                                                            //
+// Quita el salto de linea a un string obtenida de                                    //
+// https://cboard.cprogramming.com/c-programming/70320-how-remove-newline-string.html //
+// Funcion string a mayusculas obtenida de                                            //
+// https://stackoverflow.com/questions/35181913/converting-char-to-uppercase-in-c     //
+////////////////////////////////////////////////////////////////////////////////////////

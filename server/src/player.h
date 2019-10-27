@@ -23,13 +23,13 @@ typedef struct player
 	/** Puntos del jugador*/
 	int points;
 
-	uint8_t round_point;
+	int8_t round_point;
 
-	uint8_t id;
+	int8_t id;
 
 	int socket;
 
-	uint8_t aim;
+	int8_t aim;
 
 	bool answer;
 	
@@ -42,9 +42,9 @@ typedef struct game{
 
 	int n_players;
 
-	uint8_t partida;
+	int8_t partida;
 
-	uint8_t round;
+	int8_t round;
 
 	char* answer;
 

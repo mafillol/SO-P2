@@ -42,7 +42,7 @@ char** get_random_cards(char* file_name){
 			int pos_random = rand() % 20;
 			if(!cards[pos_random]){
 				int largo; //Largo de la palabra
-				char word[strlen(random_word)-2]; //Palabra
+				char word[strlen(random_word) + 1]; //Palabra
 				sscanf(random_word, "%d,%s",&largo, word);
 				cards[pos_random] = (char*) calloc(largo+3,sizeof(char));
 
@@ -102,9 +102,13 @@ char** get_random_cards(char* file_name){
 
 	//Concatenamos las 20 palabras en un string largo
 	char* long_string = (char*) calloc((total_size+1),sizeof(char));
-	sprintf(long_string,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
-	 	cards[0],cards[1],cards[2],cards[3], cards[4], cards[5],cards[6],cards[7],cards[8],cards[9],
-	 	cards[10],cards[11],cards[12],cards[13], cards[14], cards[15],cards[16],cards[17],cards[18],cards[19]);
+
+	int aux = 0;
+	for(int i=0; i<20;i++){
+		memcpy(&long_string[aux], cards[i], cards[i][0] + 2);
+		aux = aux + cards[i][0] + 2;
+	}
+
 
 	//Armamos la respuesta
 	char** payload = (char**) calloc(2,sizeof(char*));
@@ -170,10 +174,23 @@ void strip(char* string){
   string[strcspn (string,"\n")] = '\0';
 }
 
+/** Convierte el string en uppercase*/
+//Obtenida del link:
+//https://stackoverflow.com/questions/35181913/converting-char-to-uppercase-in-c
+void uppercase(char* word){
+	char *s = word;
+  while (*s) {
+    *s = toupper((unsigned char) *s);
+    s++;
+  }
+
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // IMPORTANTE - REFERENCIA                                                            //
 // Quita el salto de linea a un string obtenida de                                    //
 // https://cboard.cprogramming.com/c-programming/70320-how-remove-newline-string.html //
+// Funcion string a mayusculas obtenida de                                            //
+// https://stackoverflow.com/questions/35181913/converting-char-to-uppercase-in-c     //
 ////////////////////////////////////////////////////////////////////////////////////////

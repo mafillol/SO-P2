@@ -31,7 +31,7 @@ int main (int argc, char *argv[]){
   int server_socket = prepare_socket(IP, PORT);
 
   //Se avisa al servidor que queremos conectarnos
-  client_send_message(server_socket, 1 , "\0");
+  client_send_message(server_socket, 1 , "");
   // Se inicializa un loop para recibir todo tipo de paquetes y tomar una acción al respecto
   while (1){
     int msg_code = client_receive_id(server_socket);
@@ -94,14 +94,26 @@ int main (int argc, char *argv[]){
       char * message = client_receive_payload(server_socket);
       int response = message[0];
       int aim = message[1];
+      int try;
+      switch(aim){
+        case 2:
+          try = 1;
+          break;
+        case 1:
+          try = 2;
+          break;
+        case 0:
+          try = 3;
+          break;
+      }
 
       //Respuesta incorrecta
       if(response == 0){
-        printf("Respuesta incorrecta, tienes %d intentos restantes\n", 2-aim);
+        printf("Respuesta incorrecta, tienes %d intentos restantes\n", aim);
       }
       //Respuesta correcta
       else if(response == 1){
-        printf("Respuesta correcta en %d intentos.\n",aim+1);
+        printf("Respuesta correcta en %d intentos.\n",try);
       }
       free(message);
     }

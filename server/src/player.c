@@ -7,7 +7,7 @@ Player* init_player(char* name,uint8_t ID){
 	p->points = 0;
 	p->round_point = 0;
 	p->id = ID;
-	p->aim = 0;
+	p->aim = 3;
 	p->answer = false;
 	return p;
 }
