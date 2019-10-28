@@ -7,19 +7,20 @@
 #include <stdbool.h>
 
 
-/** Representa el estado de una partida*/
-enum status
+/** Representa el estado de la respuesta del jugador a una nueva partida*/
+enum answer_new_game
 {
-  FINISH = 0,
-  START = 1,
-  STANDBY = 2,
+  NO = 0,
+  YES = 1,
+  NOTANSWER = 2,
 };
-typedef enum status Status;
+
+typedef enum answer_new_game Answer_New_Game;
 
 typedef struct player
 {
 	/** Nombre de usuario del jugador*/
-	char name[1024];
+	char* name;
 	/** Puntos del jugador*/
 	int points;
 
@@ -32,13 +33,13 @@ typedef struct player
 	int8_t aim;
 
 	bool answer;
+
+	Answer_New_Game new_game;
 	
 } Player;
 
 typedef struct game{
 	Player** players;
-
-	Status estado;
 
 	int n_players;
 

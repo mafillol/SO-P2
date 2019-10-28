@@ -9,6 +9,7 @@ void print_cards(char* long_string){
 	int count = 0;
 	int row = 0;
 	char** matrix;
+
 	//mientras no guardemos todas las palabars en tarjetas
 	while(count<20){
 		if(count<10){
@@ -21,7 +22,7 @@ void print_cards(char* long_string){
 		int pos_random = long_string[aux+largo+1];
 
 		//Mientras la palabra se salga de la carta, se corre a la izquierda
-		while(largo+pos_random >= 20){
+		while((largo+pos_random) > 19){
 			pos_random--;
 		}
 
@@ -44,11 +45,6 @@ void print_cards(char* long_string){
 }
 
 
-
-
-
-
-
 /** Imprime dos matrices en forma de cartas*/
 void print_matrix(char** m1, char** m2){
 
@@ -69,8 +65,7 @@ void print_matrix(char** m1, char** m2){
 	printf("\n");
 }
 
-
-/** Retrona una matriz de 20x20 con un caracter comun*/
+/** Retorna una matriz de 20x20 con un caracter comun*/
 char** matrix(){
 
 	char** m = (char**)malloc(20*sizeof(char*));

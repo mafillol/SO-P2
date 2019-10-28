@@ -109,7 +109,6 @@ char** get_random_cards(char* file_name){
 		aux = aux + cards[i][0] + 2;
 	}
 
-
 	//Armamos la respuesta
 	char** payload = (char**) calloc(2,sizeof(char*));
 	payload[0] = answer;
@@ -183,9 +182,28 @@ void uppercase(char* word){
     *s = toupper((unsigned char) *s);
     s++;
   }
-
 }
 
+/** Genera un nuevo grupo de palabras para el juego a partir de las palabras en el archivo*/
+void new_words(Game* game, char* file_words){
+	//Eliminamos la respuesta anterior
+	if(game->answer){
+		free(game->answer);
+	}
+	//Eliminamos las palabras anteriores
+	if(game->words){
+		free(game->words);
+	}
+	//Generamos un nuevo grupo de palabras
+	char** cards = get_random_cards(file_words);
+	//Guardamos la nueva respuesta para comparar
+  game->answer = cards[0];
+  //Convertimos a mayusculas por precaucion para comparar mas facil las respuestas
+  uppercase(game->answer);
+  //Guardamos las palabras nuevas
+  game->words = cards[1];
+  free(cards);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // IMPORTANTE - REFERENCIA                                                            //

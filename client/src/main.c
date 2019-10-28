@@ -57,7 +57,7 @@ int main (int argc, char *argv[]){
     //Servidor envia ID
     else if(msg_code == 6){
       char * message = client_receive_payload(server_socket);
-      printf("Tu id personal es: %s\n", message);
+      printf("Tu id personal es: %d\n", message[0]);
       ID = (int) strtol(message, (char **)NULL, 10);
       free(message);
     }
@@ -65,14 +65,14 @@ int main (int argc, char *argv[]){
     //Partida iniciada correctamente
     else if(msg_code == 7){
       char * message = client_receive_payload(server_socket);
-      printf("Partida %s iniciada.\n", message);
+      printf("Partida %d iniciada.\n", message[0]);
       free(message);
     }
 
     //Se desplegan los puntajes de los jugadores
     else if(msg_code == 8){
       char * message = client_receive_payload(server_socket);
-      printf("Tu puntaje es: %c\tEl puntaje de tu contrincante es: %c\n", message[0],message[1]);
+      printf("Tu puntaje es: %d\tEl puntaje de tu contrincante es: %d\n", message[0],message[1]);
       free(message);
     }
 

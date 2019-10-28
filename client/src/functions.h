@@ -6,7 +6,7 @@
 ///         FUNCIONES PRIVADAS         ///
 //////////////////////////////////////////
 
-/** Retrona una matriz de 20x20 con un caracter comun*/
+/** Retorna una matriz de 20x20 con un caracter comun*/
 char** matrix();
 /** Destruye una matriz de 20x20*/
 void destroy_matrix(char** m);

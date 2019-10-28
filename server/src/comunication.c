@@ -19,7 +19,7 @@ char * server_receive_payload(int client_socket){
 }
 
 void server_send_message(int client_socket, int pkg_id, char * message){
-  int payloadSize = strlen(message) + 1;
+  int payloadSize = real_size_payload(pkg_id,message) + 1;
   //printf("payload size: %d\n", payloadSize);
   // Se arma el paquete
   char msg[1+1+payloadSize];
@@ -28,4 +28,42 @@ void server_send_message(int client_socket, int pkg_id, char * message){
   memcpy(&msg[2], message, payloadSize);
   // Se envía el paquete
   send(client_socket, msg, 2+payloadSize, 0);
+}
+
+/** Retorna el verdadero largo del payload*/
+int real_size_payload(int pkg_id, char* message){
+  int payloadSize;
+
+  if(pkg_id == 4 || pkg_id == 12 || pkg_id == 6 || pkg_id == 14 || pkg_id == 13){
+    payloadSize = 1;
+  }
+
+  else if(pkg_id == 9){
+    payloadSize = real_size_long_string(message);
+  }
+
+  else if(pkg_id == 11){
+    payloadSize = 2;
+  }
+
+  else{
+    payloadSize = strlen(message);
+  }
+
+  return payloadSize;
+}
+
+
+/** Retorna el verdadero largo del long string de cartas*/
+int real_size_long_string(char* long_string){
+  int total_size = 0;
+  int aux = 0;
+  int count = 0;
+  while(count<20){
+    int largo = long_string[aux];
+    total_size = total_size + largo + 2;
+    count++;
+    aux = aux + largo + 2;
+  }
+  return total_size;
 }
