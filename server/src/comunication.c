@@ -42,7 +42,7 @@ int real_size_payload(int pkg_id, char* message){
     payloadSize = real_size_long_string(message);
   }
 
-  else if(pkg_id == 11){
+  else if(pkg_id == 11 || pkg_id == 8){
     payloadSize = 2;
   }
 
