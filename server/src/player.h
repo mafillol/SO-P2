@@ -17,48 +17,64 @@ enum answer_new_game
 
 typedef enum answer_new_game Answer_New_Game;
 
+/** Representa a un jugador*/
 typedef struct player
 {
 	/** Nombre de usuario del jugador*/
 	char* name;
 	/** Puntos del jugador*/
 	int points;
-
+	/** Puntos de la ronda actual*/
 	int8_t round_point;
-
+	/** ID del jugador*/
 	int8_t id;
-
-	int socket;
-
+	/** Intentos restantes para la ronda actual*/
 	int8_t aim;
-
+	/** El jugador ha respondido o no en la ronda actual*/
 	bool answer;
-
+	/** Respuesta del jugador a una nueva partida*/
 	Answer_New_Game new_game;
 	
 } Player;
 
+/** Representa a un juego entre dos jugadores*/
 typedef struct game{
+	/** Array de jugadores en el juego*/
 	Player** players;
-
+	/** Cantidad de jugadores*/
 	int n_players;
-
+	/** Numero de partida actual*/
 	int8_t partida;
-
+	/** Numero de ronda actual*/
 	int8_t round;
-
+	/** Respuesta a la ronda actual, en la partida actual*/
 	char* answer;
-
+	/** Palabras de la ronda actual, en la partida actual*/
 	char* words;
 
 } Game;
 
 
+//////////////////////////////////////////
+///         FUNCIONES PRIVADAS         ///
+//////////////////////////////////////////
 
-Player* init_player(char* name,uint8_t ID);
-
+/** Destruye a un jugador*/
 void destroy_player(Player* p);
 
+
+
+
+
+//////////////////////////////////////////
+///         FUNCIONES PUBLICAS         ///
+//////////////////////////////////////////
+
+/** Inicializa un nuevo jugador*/
+Player* init_player(char* name,uint8_t ID);
+
+/** Inicializa un nuevo juego*/
 Game* init_game();
 
+/** Destruye un juego*/
 void destroy_game(Game* game);

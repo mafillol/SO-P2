@@ -86,3 +86,17 @@ void destroy_matrix(char** m){
 	}
 	free(m);
 }
+
+/** Crea una copia del string en uppercase*/
+//Obtenida del link:
+//https://stackoverflow.com/questions/35181913/converting-char-to-uppercase-in-c
+char* uppercase(char* word){
+	char* s = (char*) calloc(strlen(word) + 1, sizeof(char));
+	strcpy(s, word);
+
+  while (*s) {
+    *s = toupper((unsigned char) *s);
+    s++;
+  }
+  return s;
+}

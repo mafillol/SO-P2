@@ -57,22 +57,22 @@ int main (int argc, char *argv[]){
     //Servidor envia ID
     else if(msg_code == 6){
       char * message = client_receive_payload(server_socket);
-      printf("Tu id personal es: %d\n", message[0]);
-      ID = (int) strtol(message, (char **)NULL, 10);
+      printf("Tu id personal es: %d\n", (int)message[0]);
+      ID = message[0];
       free(message);
     }
 
     //Partida iniciada correctamente
     else if(msg_code == 7){
       char * message = client_receive_payload(server_socket);
-      printf("Partida %d iniciada.\n", message[0]);
+      printf("Partida %d iniciada.\n", (int)message[0]);
       free(message);
     }
 
     //Se desplegan los puntajes de los jugadores
     else if(msg_code == 8){
       char * message = client_receive_payload(server_socket);
-      printf("Tu puntaje es: %d\tEl puntaje de tu contrincante es: %d\n", message[0],message[1]);
+      printf("Tu puntaje es: %d\tEl puntaje de tu contrincante es: %d\n", (int)message[0],(int)message[1]);
       free(message);
     }
 
@@ -81,11 +81,23 @@ int main (int argc, char *argv[]){
       char * message = client_receive_payload(server_socket);
       // Imprimimos las cartas
       print_cards(message);
+
       // Pedimos respuesta del cliente
-      printf("\nIngrese la palabra repetida:\t");
+      printf("\nIngrese la palabra repetida o Disconnect para salir:\t");
       char* response = get_input();
+
+      char* upper = uppercase(response);
+
+      //Si se desconecta
+      if(strcmp(upper, "DISCONNECT") == 0){
+        client_send_message(server_socket, 17, "");
+      }
       // Enviamos respuesta al servidor
-      client_send_message(server_socket, 10, response);
+      else{
+        client_send_message(server_socket, 10, response);
+      }
+      
+      free(upper);
       free(message);
     }
 
@@ -142,14 +154,15 @@ int main (int argc, char *argv[]){
     //Partida terminada
     else if(msg_code == 13){
       char * message = client_receive_payload(server_socket);
-      printf("Partida %s terminada.\n", message);
+      printf("Partida %d terminada.\n", message[0]);
       free(message);
     }
 
     //Ganador de la partida
     else if(msg_code == 14){
       char * message = client_receive_payload(server_socket);
-      int response = (int) strtol(message, (char **)NULL, 10);
+      int response = message[0];
+
       //Partida ganada
       if(response == ID){
         printf("Felicidades!! Has ganado la partida.\n");
@@ -170,15 +183,17 @@ int main (int argc, char *argv[]){
         int option = getchar() - '0';
         getchar(); //Para capturar el "enter" que queda en el buffer de entrada stdin
 
+        char response[1];
         //Iniciamos nueva partida
         if(option == 1){
-          client_send_message(server_socket,16, "1");
+          response[0] = 1;
+          client_send_message(server_socket,16, response);
           answer = true;
         }
-        //Nos desconectamos
+        //Terminamos de jugar
         else if(option == 2){
-          client_send_message(server_socket,16, "0");
-          client_send_message(server_socket,17, "");
+          response[0] = 0;
+          client_send_message(server_socket,16, response);
           answer = true;
         }
       }

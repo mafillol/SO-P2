@@ -1,6 +1,6 @@
 #include "player.h"
 
-
+/** Inicializa un nuevo jugador*/
 Player* init_player(char* name,uint8_t ID){
 
 	Player* p = malloc(sizeof(Player));
@@ -17,6 +17,7 @@ Player* init_player(char* name,uint8_t ID){
 	return p;
 }
 
+/** Destruye a un jugador*/
 void destroy_player(Player* p){
 	if(p){
 		free(p->name);
@@ -24,6 +25,7 @@ void destroy_player(Player* p){
 	}	
 }
 
+/** Inicializa un nuevo juego*/
 Game* init_game(){
 	Game* g = malloc(sizeof(Game));
 	g->n_players = 0;
@@ -33,6 +35,7 @@ Game* init_game(){
 	return g;
 }
 
+/** Destruye un juego*/
 void destroy_game(Game* game){
 	for(int i= 0; i<game->n_players; i++){
 		destroy_player(game->players[i]);

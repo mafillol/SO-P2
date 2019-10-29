@@ -3,7 +3,6 @@
 
 /** Retorna un la lista de strings, el primero es la respuesta 
 y el segundo es un string largo con las 20 palabras*/
-
 char** get_random_cards(char* file_name){
 
 	//Inicializo variables auxiliares para leer el archivo
