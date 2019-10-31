@@ -6,6 +6,8 @@ void print_cards(char* long_string){
 	char** m1 = matrix();
 	char** m2 = matrix();
 
+	char** words = (char**)calloc(20, sizeof(char*));
+
 	int aux = 0;
 	int count = 0;
 	int row = 0;
@@ -22,14 +24,21 @@ void print_cards(char* long_string){
 		int largo = long_string[aux];
 		int pos_random = long_string[aux+largo+1];
 
+		words[count] = (char*) calloc(largo+1, sizeof(char));
+		strncpy(words[count], &long_string[aux+1], largo);
+
 		//Mientras la palabra se salga de la carta, se corre a la izquierda
 		while((largo+pos_random) > 19){
 			pos_random--;
 		}
-
+		int p = 0;
 		for(int i=aux+1;i<aux+largo+1;i++){
+			//Guardamos la palabra en la matiz
 			matrix[row][pos_random] = long_string[i];
 			pos_random++;
+			//Guardamos la palabra para revisarla
+			words[count][p] = long_string[i];
+			p++;
 		}
 		count++;
 		aux = aux + largo + 2;
@@ -38,11 +47,20 @@ void print_cards(char* long_string){
 			row = 0;
 		}
 	}
+	
+	//Si la palabra repetida queda en la misma carta, las separa
+	change_repeat_word_in_matrix(words, m1, m2);
 
 	print_matrix(m1, m2);
 
 	destroy_matrix(m1);
 	destroy_matrix(m2);
+
+	//Liberamos la memoria de la lsita de palabras
+	for(int i=0; i<20; i++){
+		free(words[i]);
+	}
+	free(words);
 }
 
 
@@ -69,10 +87,10 @@ void print_matrix(char** m1, char** m2){
 /** Retorna una matriz de 20x20 con un caracter comun*/
 char** matrix(){
 
-	char** m = (char**)malloc(20*sizeof(char*));
+	char** m = (char**)calloc(20, sizeof(char*));
 
 	for(int i=0; i<20; i++){
-		m[i] = (char*)malloc(20*sizeof(char));
+		m[i] = (char*)calloc(21,sizeof(char)); //21 para el termino del string
 		for(int j=0; j<20; j++){
 			m[i][j] = '-';
 		}
@@ -87,6 +105,60 @@ void destroy_matrix(char** m){
 	}
 	free(m);
 }
+
+/** Cambia de posicion la palabra si es que se encuentra en la misma carta*/
+void change_repeat_word_in_matrix(char** words, char** m1, char** m2){
+
+	int fila[10] = {0,2,4,6,8,10,12,14,16,18}; 
+	int pos_m1 = repeat_word_in_matrix(words, m1);
+
+	//Si hay una palabra repetida en la primera carta
+	if(pos_m1 != -1){
+		int new_position = fila[rand()%10];
+		//Guardamos la referencia a la otra fila de la matriz
+		char* aux = m2[new_position];
+		//Invertimos los valores
+		m2[new_position] = m1[pos_m1];
+		m1[pos_m1] = aux;
+	}
+
+	int pos_m2 = repeat_word_in_matrix(words, m2);
+
+	//Si hay una palabra repetida en la segunda carta
+	if(pos_m2 != -1){
+		int new_position = fila[rand()%10];
+		//Guardamos la referencia a la otra fila de la matriz
+		char* aux = m1[new_position];
+		//Invertimos los valores
+		m1[new_position] = m2[pos_m2];
+		m2[pos_m2] = aux;
+	}
+}
+
+/** Retorna una de las posiciones de la palabra repetida en la matriz, o -1 si no encuentra*/
+int repeat_word_in_matrix(char** words, char** matrix){
+
+	//Para cada una de las palabras de la lista
+	for(int i=0; i<20; i++){
+		int count = 0;
+		//Para cada una de las filas de la matriz
+		for(int j=0; j<20; j++){
+			//Si la palabra se encuentra en la fila de la matriz
+			if (strstr(matrix[j], words[i]) != NULL){
+				count ++;
+			}
+			//Si se ha encontrado la palabra mas de una vez
+			if(count > 1){
+				//Retornamos la posicion en la matriz
+				return j;
+			}
+		}
+	}
+	//Si no hay palabras repetidas
+	return -1;
+}
+
+
 
 /** Crea una copia del string en uppercase*/
 //Obtenida del link:

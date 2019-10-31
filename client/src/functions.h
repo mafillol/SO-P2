@@ -18,6 +18,12 @@ void destroy_matrix(char** m);
 /** Imprime dos matrices en forma de cartas*/
 void print_matrix(char** m1, char** m2);
 
+/** Retorna una de las posiciones de la palabra repetida en la matriz, o -1 si no encuentra*/
+int repeat_word_in_matrix(char** words, char** matrix);
+
+/** Cambia de posicion la palabra si es que se encuentra en la misma carta*/
+void change_repeat_word_in_matrix(char** words, char** m1, char** m2);
+
 
 //////////////////////////////////////////
 ///         FUNCIONES PUBLICAS         ///

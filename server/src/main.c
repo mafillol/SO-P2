@@ -302,8 +302,15 @@ int main(int argc, char *argv[]){
 
           for (int i = 0; i < 2; ++i)
           {
+            Player* p = game->players[i];
+            p->answer = false; //Los jugadores no han respondido
+            p->round_point = 0; //Limpiamos el puntaje de la ronda
+            p->aim = 3;  //Restauramos los intentos
+            p->points = 0; //Limpiamos el puntaje de la partida
+
             // Avisamos el ganador de la partida     
             server_send_message(sockets_array[i], 14, winner);
+            
             //Escribimos en el log file
             if(write_file_log){
               write_log(14, winner, i);
@@ -512,7 +519,7 @@ int main(int argc, char *argv[]){
   if(players_info){
     free(players_info);
   }
-  
+
   //Destruimos el juego
   if(game){
     destroy_game(game);

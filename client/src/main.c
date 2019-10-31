@@ -10,6 +10,7 @@
 int ID;
 char * IP;
 int PORT;
+bool write_file_log = false;
 
 char * get_input(){
   char * response = malloc(20);
@@ -39,7 +40,7 @@ int main (int argc, char *argv[]){
       PORT = argv[i+1] - "0";
     }
   }
-  
+
   IP = "127.0.1.1";
   PORT = 8070;
 
@@ -71,7 +72,6 @@ int main (int argc, char *argv[]){
       //Enviamos el nombre al servidor
       client_send_message(server_socket, 4, name);
 
-      free(name);
       free(message);
     }
     /** Se encontro oponente para la partida*/
@@ -134,7 +134,6 @@ int main (int argc, char *argv[]){
       }
 
       //Liberamos la memoria
-      free(response);
       free(upper);
       free(message);
     }
@@ -235,6 +234,7 @@ int main (int argc, char *argv[]){
           answer = true;
         }
       }
+      free(message);
     }
     
     /** Servidor envía desconexion */ 
