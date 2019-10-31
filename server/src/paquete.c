@@ -1,5 +1,5 @@
 #include "paquete.h"
-
+#include "comunication.h"
 
 /** Retorna un la lista de strings, el primero es la respuesta 
 y el segundo es un string largo con las 20 palabras*/
@@ -188,10 +188,12 @@ void new_words(Game* game, char* file_words){
 	//Eliminamos la respuesta anterior
 	if(game->answer){
 		free(game->answer);
+		game->answer = NULL;
 	}
 	//Eliminamos las palabras anteriores
 	if(game->words){
 		free(game->words);
+		game->words = NULL;
 	}
 	//Generamos un nuevo grupo de palabras
 	char** cards = get_random_cards(file_words);
@@ -202,6 +204,108 @@ void new_words(Game* game, char* file_words){
   //Guardamos las palabras nuevas
   game->words = cards[1];
   free(cards);
+  cards = NULL;
+}
+
+
+// Forma de escribir time strap
+// Obtenida de link: http://www.informit.com/articles/article.aspx?p=23618&seqNum=8
+/** Funcion encargada de escribir en log*/
+void write_log(int pkg_id, char* message, int socket){
+	// Abro el archivo
+	FILE* file_logs = fopen("log.txt", "a");
+
+	struct timeval tv;
+ 	struct tm* ptm;
+ 	char time_string[40];
+ 	
+ 	// Obtain the time of day, and convert it to a tm struct
+  gettimeofday (&tv, NULL);
+  ptm = localtime (&tv.tv_sec);long milliseconds;
+
+  ///Format the date and time, down to a single second
+ 	strftime(time_string, sizeof (time_string), "%Y-%m-%d %H:%M:%S", ptm);
+
+ 	//Obtenemmos los milisegundos de los microsegundos
+ 	milliseconds = tv.tv_usec / 1000;
+
+ 	// Estribimos el tiempo en el archivo
+ 	fprintf(file_logs, "[%s.%03ld] ", time_string, milliseconds);
+
+ 	//Cambiar como obtener largo payload
+	if(pkg_id == 1){
+		fprintf(file_logs, "[SERVER][PKGE IN] AskConnection received. Package: %d %d %s\n",pkg_id,real_size_payload(pkg_id, message), message);
+	}
+	else if(pkg_id == 2){
+		fprintf(file_logs, "[SERVER][PKGE OUT] ConnectionEstablished sended to socket %d. Package: %d %d %d\n",socket+1,pkg_id,real_size_payload(pkg_id, message), (int)message[0]);
+	}
+	else if(pkg_id == 3){
+		fprintf(file_logs, "[SERVER][PKGE OUT] AskNickname sended to socket %d. Package: %d %d %d\n",socket+1,pkg_id,real_size_payload(pkg_id, message), (int)message[0]);
+	}
+	else if(pkg_id == 4){
+		fprintf(file_logs, "[SERVER][PKGE IN] ReturnNickname received. Package: %d %d %s \n",pkg_id, (int)strlen(message), message);
+	}
+	else if(pkg_id == 5){
+		fprintf(file_logs, "[SERVER][PKGE OUT] OpponentFound sended to socket %d. Package: %d %d %s\n",socket+1, pkg_id, real_size_payload(pkg_id, message), message);
+	}
+	else if(pkg_id == 6){
+		fprintf(file_logs, "[SERVER][PKGE OUT] SendIDs sended to socket %d. Package: %d %d %d\n", socket+1, pkg_id, real_size_payload(pkg_id,message), (int)message[0]);
+	}
+	else if(pkg_id == 7){
+		fprintf(file_logs, "[SERVER][PKGE OUT] StartGame sended to socket %d. Package: %d %d %d\n", socket+1, pkg_id, real_size_payload(pkg_id,message), (int)message[0]);
+	}
+	else if(pkg_id == 8){
+		fprintf(file_logs, "[SERVER][PKGE OUT] SendScore sended to socket %d. Package: %d %d %d %d\n", socket+1,pkg_id, real_size_payload(pkg_id,message), (int)message[0], (int)message[1]);
+	}
+	else if(pkg_id == 9){
+		fprintf(file_logs, "[SERVER][PKGE OUT] SendCards sended to socket %d.Package: %d %d", socket+1, pkg_id, real_size_payload(pkg_id,message));
+		int aux = 0;
+		int count = 0;
+		while(count<20){
+			int largo = message[aux];
+			fprintf(file_logs, " %d ",largo);
+			for(int i=aux+1;i<aux+largo+1;i++){
+				fprintf(file_logs, "%c", message[i]);
+			}
+			int pos_random = message[aux+largo+1];
+			fprintf(file_logs, " %d", pos_random);
+			count++;
+			aux = aux + largo + 2;
+	
+		}
+		fprintf(file_logs, "\n");
+	}
+	else if(pkg_id == 10){
+		fprintf(file_logs, "[SERVER][PKGE IN] SendWord received from socket %d. Package: %d %d %s\n",socket+1, pkg_id, real_size_payload(pkg_id,message),message);
+	}
+	else if (pkg_id == 11){
+		fprintf(file_logs, "[SERVER][PKGE OUT] ResponseWord sended to socket %d. Package: %d %d %d %d\n", socket+1, pkg_id, real_size_payload(pkg_id,message),(int)message[0], (int)message[1]);
+	}
+	else if(pkg_id == 12){
+		fprintf(file_logs, "[SERVER][PKGE OUT] RoundWinnerLoser sended to socket %d. Package: %d %d %d\n", socket+1, pkg_id, real_size_payload(pkg_id,message), (int)message[0]);
+	}
+	else if(pkg_id == 13){
+		fprintf(file_logs, "[SERVER][PKGE OUT] EndGame sended to socket %d. Package: %d %d %d\n",socket+1, pkg_id, real_size_payload(pkg_id,message), (int)message[0]);
+	}
+	else if(pkg_id == 14){
+		fprintf(file_logs, "[SERVER][PKGE OUT] GameWinnerLoser sended to socket %d. Package: %d %d %d\n", socket+1, pkg_id, real_size_payload(pkg_id,message), (int)message[0]);
+	}
+	else if(pkg_id == 15){
+		fprintf(file_logs, "[SERVER][PKGE OUT] AskNewGame sended to socket %d. Package: %d %d %s\n",socket+1,pkg_id,(int)strlen(message), message);
+	}
+	else if(pkg_id == 16){
+		fprintf(file_logs, "[SERVER][PKGE IN] AnswerNewGame received from socket %d. Package: %d %d %d", socket+1, pkg_id, real_size_payload(pkg_id,message), (int)message[0]);
+	}
+	else if(pkg_id == 17){
+		fprintf(file_logs, "[SERVER][PKGE OUT] Disconnect sended to socket %d. Package: %d %d %s\n", socket+1, pkg_id, (int)strlen(message), message);
+	}
+	else if(pkg_id == 20){
+		fprintf(file_logs, "[SERVER][PKGE OUT] Error Bad Package sended to socket %d. Package: %d %d %s\n",socket+1, pkg_id, (int)strlen(message), message);
+	}
+	else{
+		fprintf(file_logs, "[SERVER][PKGE IN] Error Bad Package received from socket %d. Package: %d %d %s\n",socket+1, pkg_id, (int)strlen(message), message);
+	}
+	fclose(file_logs); 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

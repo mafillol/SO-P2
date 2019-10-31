@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <ctype.h>
+#include <time.h>
+#include <sys/time.h>
 #include "player.h"
 
 //////////////////////////////////////////
@@ -32,7 +34,6 @@ void uppercase(char* word);
 //https://cboard.cprogramming.com/c-programming/70320-how-remove-newline-string.html
 void strip(char* string);
 
-
 //////////////////////////////////////////
 ///         FUNCIONES PUBLICAS         ///
 //////////////////////////////////////////
@@ -42,7 +43,10 @@ void strip(char* string);
 /** Genera un nuevo grupo de palabras para el juego a partir de las palabras en el archivo*/
 void new_words(Game* game, char* file_words);
 
-
+// Forma de escribir time strap
+// Obtenida de link: http://www.informit.com/articles/article.aspx?p=23618&seqNum=8
+/** Funcion encargada de escribir en log*/
+void write_log(int pkg_id, char* message, int socket);
 
 
 

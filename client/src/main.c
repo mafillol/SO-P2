@@ -38,14 +38,18 @@ int main (int argc, char *argv[]){
 
     //Establecemos conexion con el servidor
     if (msg_code == 2) { 
+      char * message = client_receive_payload(server_socket);
       printf("Conexion establecida con servidor...\n");
+      free(message);
     }
 
     //Establecemos un nickname
     else if (msg_code == 3) { 
+      char * message = client_receive_payload(server_socket);
       printf("Ingrese un nick para la partida:\t");
       char* name = get_input();
       client_send_message(server_socket, 4, name);
+      free(message);
     }
     //Se encontro oponente para la partida
     else if (msg_code == 5) { 
@@ -133,7 +137,7 @@ int main (int argc, char *argv[]){
     //Ronda terminada
     else if(msg_code == 12){
       char * message = client_receive_payload(server_socket);
-      int response = (int) strtol(message, (char **)NULL, 10);
+      int response = message[0];
 
       //Ronda empatada
       if(response == 0){
@@ -201,13 +205,18 @@ int main (int argc, char *argv[]){
     
     //Nos desconectan 
     else if(msg_code == 17){
+      char * message = client_receive_payload(server_socket);
       printf("Desconectando del servidor...\n");
-      ID = 0;    
+      ID = 0;
+      free(message);
+      break; 
     }
 
     //Error del servidor
     else if(msg_code == 20){
+      char * message = client_receive_payload(server_socket);
       printf("ERROR: ID desconocido o paquete mal contruido\n");
+      free(message);
     }
 
     printf("------------------\n");
@@ -215,7 +224,7 @@ int main (int argc, char *argv[]){
 
   // Se cierra el socket
   close(server_socket);
-  free(IP);
+  //free(IP);
 
   return 0;
 }

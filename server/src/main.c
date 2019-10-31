@@ -9,26 +9,31 @@
 #include "paquete.h"
 #include "player.h"
 
-uint8_t ID = 0;
 char* file_words = "palabras.txt";
+bool write_file_log = false;
 
-char * revert(char * message){
-  int len = strlen(message) + 1;
-  char * response = malloc(len);
-  
-  for (int i = 0; i < len-1; i++)
-  {
-    response[i] = message[len-2-i];
-  }
-  response[len-1] = '\0';
-  return response;
-}
-
+char * IP;
+int PORT;
 
 int main(int argc, char *argv[]){
+
+  for(int i=0; i<argc; i++){
+    if(strcmp(argv[i], "-l") == 0){
+      write_file_log = true;
+      FILE* f = fopen("log.txt", "w+");
+      fclose(f);
+    }
+    if(strcmp(argv[i], "-i") == 0){
+      IP = argv[i+1];
+    }
+    if(strcmp(argv[i], "-p") == 0){
+      PORT = argv[i+1] - "0";
+    }
+  }
   // Se define una IP y un puerto
-  char * IP = "127.0.1.1";
-  int PORT = 8070;
+  IP = "127.0.1.1";
+  PORT = 8070;
+
   Game* game = NULL;  
 
   // Se crea el servidor y se obtienen los sockets de ambos clientes.
@@ -36,32 +41,52 @@ int main(int argc, char *argv[]){
 
   // Guardaremos los sockets en un arreglo e iremos alternando a quién escuchar.
   int sockets_array[2] = {players_info->socket_c1, players_info->socket_c2};
+
   int my_attention = 0;
+
   while (1)
   {
     // Se obtiene el paquete de uno de los clientes
     int msg_code = server_receive_id(sockets_array[my_attention]);
+
     printf("Mensaje : %d\n", msg_code);
     
      /** El cliente desea inicar una partida*/
     if (msg_code == 1)
     { 
+
       char * client_message = server_receive_payload(sockets_array[my_attention]);
+
+      //Escribimos en el log file
+      if(write_file_log){
+        write_log(msg_code, client_message, 0);
+      }
+
       //Avisamos que se establecio la conexion
       server_send_message(sockets_array[my_attention], 2, "");
+      //Escribimos en el log file
+      if(write_file_log){
+        write_log(2, "", my_attention);
+      }
       //Preguntamos por el nickname
       server_send_message(sockets_array[my_attention], 3, "");
+       //Escribimos en el log file
+      if(write_file_log){
+        write_log(3, "", my_attention);
+      }
 
       free(client_message);
-      // Mi atención cambia al otro socket
       my_attention = (my_attention + 1) % 2;
     }
 
     /** El cliente establece un nickname*/
     else if (msg_code == 4){
       char * client_message = server_receive_payload(sockets_array[my_attention]);
-      ID ++;
-      Player* p = init_player(client_message, ID);
+      //Escribimos en el log file
+      if(write_file_log){
+        write_log(4, client_message, my_attention);
+      }
+      Player* p = init_player(client_message, my_attention + 1);
       if(!game){
         game = init_game();
       }
@@ -73,6 +98,10 @@ int main(int argc, char *argv[]){
 
       //Enviamos el id del jugador
       server_send_message(sockets_array[my_attention], 6, id);
+      //Escribimos en el log file
+      if(write_file_log){
+        write_log(msg_code, client_message, my_attention);
+      }
 
       //Si se encuentra un contrincante
       if(game->n_players>=2){
@@ -86,37 +115,56 @@ int main(int argc, char *argv[]){
 
           //Avisamos que se encontro un contrincante
           server_send_message(sockets_array[i], 5, game->players[adversario]->name);
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(5, game->players[adversario]->name, i);
+          }
 
           char partida[1] = {game->partida};
           //Avisamos que inicio la partida
           server_send_message(sockets_array[i], 7, partida);
+           //Escribimos en el log file
+          if(write_file_log){
+            write_log(7, partida, i);
+          }
 
           // Enviamos los puntajes 
           char points[2] = {p->points, game->players[adversario]->points}; 
           server_send_message(sockets_array[i], 8, points);
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(8, points, i);
+          }
 
           // Enviamos las primeras palabras          
           server_send_message(sockets_array[i], 9, game->words);
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(9, game->words, i);
+          }
         }
       }
       free(client_message);
-      // Mi atención cambia al otro socket
       my_attention = (my_attention + 1) % 2;
-
     }
 
     /** El cliente manda una palabra respuesta*/
     else if(msg_code == 10){
       char * client_message = server_receive_payload(sockets_array[my_attention]);
 
+      //Escribimos en el log file
+      if(write_file_log){
+        write_log(msg_code, client_message, my_attention);
+      }
+
       int adversario = (my_attention + 1) % 2;
       
       Player* p = game->players[my_attention];
-      //Disminuimos los intentos restantes
-      p->aim --;
 
       //Si le quedan intentos y aun no contesta
       if(p->aim > 0 && !p->answer){
+        //Disminuimos los intentos restantes
+        p->aim --;
         //Convertimos la respuesta a mayusculas
         uppercase(client_message);
 
@@ -126,6 +174,10 @@ int main(int argc, char *argv[]){
 
           //Enviamos la respuesta y los intentos
           server_send_message(sockets_array[my_attention], 11, response);
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(11, response, my_attention);
+          }
 
           //Guardamos que el usuario ha respondido
           p->answer = true;
@@ -152,14 +204,26 @@ int main(int argc, char *argv[]){
 
           //Enviamos la respuesta y los intentos
           server_send_message(sockets_array[my_attention], 11, response);
-          //Volvemos a enviar las palabras
-          server_send_message(sockets_array[my_attention], 9, game->words);
-        }
-      }
 
-      //Respuesta equivocada en todos los intentos
-      else if(p->aim == 0 && !p->answer){
-        p->answer = true;
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(11, response, my_attention);
+          }
+          //Si ya no me quedan intentos
+          if(p->aim == 0){
+            p->answer = true;
+          }
+          //Si todavia quedan intentos
+          else{
+            //Volvemos a enviar las palabras
+            server_send_message(sockets_array[my_attention], 9, game->words);
+            //Escribimos en el log file
+            if(write_file_log){
+              write_log(9, game->words, my_attention);
+            }
+          }
+
+        }
       }
 
       //Si ambos jugadores contestaron, la ronda termina
@@ -182,6 +246,10 @@ int main(int argc, char *argv[]){
         //Avisamos a ambos jugadores del ganador
         for(int i=0; i<2; i++){
           server_send_message(sockets_array[i], 12, round_winner);
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(12, round_winner, i);
+          }
         }
 
         //Avanzamos en la ronda
@@ -195,6 +263,10 @@ int main(int argc, char *argv[]){
           for (int i = 0; i < 2; ++i)
           {
             server_send_message(sockets_array[i], 13, partida);
+            //Escribimos en el log file
+            if(write_file_log){
+              write_log(13, partida, i);
+            }
           }
           char winner[1];
           //El ganador de la partida es el jugador actual
@@ -214,9 +286,17 @@ int main(int argc, char *argv[]){
           {
             // Avisamos el ganador de la partida     
             server_send_message(sockets_array[i], 14, winner);
+            //Escribimos en el log file
+            if(write_file_log){
+              write_log(14, winner, i);
+            }
             
             //Preguntamos por un juego nuevo
             server_send_message(sockets_array[i], 15, "");
+            //Escribimos en el log file
+            if(write_file_log){
+              write_log(15, "", i);
+            }
           }
 
         }
@@ -233,78 +313,117 @@ int main(int argc, char *argv[]){
             Player* p = game->players[i];
             p->answer = false; //Los jugadores no han respondido
             p->round_point = 0; //Limpiamos el puntaje de la ronda
+            p->aim = 3;  //Restauramos los intentos
 
             // Enviamos los puntajes 
             char points[2] = {p->points, game->players[(i + 1) %2]->points}; 
             server_send_message(sockets_array[i], 8, points);
+            //Escribimos en el log file
+            if(write_file_log){
+              write_log(8, points, i);
+            }
 
             // Enviamos las nuevas palabras de la ronda        
             server_send_message(sockets_array[i], 9, game->words);
+            //Escribimos en el log file
+            if(write_file_log){
+              write_log(9, game->words, i);
+            }
           }
         }
       }
       free(client_message);
-
-      // Mi atención cambia al otro socket
       my_attention = (my_attention + 1) % 2;
-
     }
 
 
     /** El cliente responde si quiere seguir jugando*/
     else if(msg_code == 16){
       char * client_message = server_receive_payload(sockets_array[my_attention]);
-
+      //Escribimos en el log file
+      if(write_file_log){
+        write_log(msg_code, client_message, my_attention);
+      }
       int response = client_message[0];
 
-      //Si no quiere seguir jugando
-      if(response == 0){
-        for (int i = 0; i < 2; ++i)
-        {
-          //Avisamos de la desconexion        
-          server_send_message(sockets_array[i], 17, "");
+      //Paquete mal contruido
+      if(response!=0 && response != 1){
+        // Avisamos al usuario del paquete mal contruido
+        server_send_message(sockets_array[my_attention], 20, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(20, "", my_attention);
         }
-        destroy_game(game);
       }
 
-      Player* p = game->players[my_attention];
-      //Guardamos la respuesta del usuario
-      p->new_game=response;
-
-      //Si el otro cliente tambien quiere seguir jugando
-      if(game->players[(my_attention + 1) % 2]->new_game == YES){
-        //Avanzamos la partida
-        game->partida++;
-        game->round = 1;
-
-        //Generamos un nuevo set de palabras
-        new_words(game, file_words);
-
-        for(int i=0; i<2 ; i++){
-          char partida[1] = {game->partida};
-          //Avisamos que inicio la partida
-          server_send_message(sockets_array[i], 7, partida);
-
-          // Enviamos los puntajes 
-          char points[2] = {p->points, game->players[(i + 1) % 2]->points}; 
-          server_send_message(sockets_array[i], 8, points);
-
-          // Enviamos las primeras palabras          
-          server_send_message(sockets_array[i], 9, game->words);
+      else{
+        //Si no quiere seguir jugando
+        if(response == 0){
+          for (int i = 0; i < 2; ++i)
+          {
+            //Avisamos de la desconexion        
+            server_send_message(sockets_array[i], 17, "");
+            //Escribimos en el log file
+            if(write_file_log){
+              write_log(17, "", i);
+            }
+          }
         }
-        //Restauramos las respuestas delos clientes para nuevo juego
-        p->new_game = NOTANSWER;
-        game->players[(my_attention + 1) % 2]->new_game = NOTANSWER;
+
+        Player* p = game->players[my_attention];
+        //Guardamos la respuesta del usuario
+        p->new_game=response;
+
+        //Si el otro cliente tambien quiere seguir jugando
+        if(game->players[(my_attention + 1) % 2]->new_game == YES){
+          //Avanzamos la partida
+          game->partida++;
+          game->round = 1;
+
+          //Generamos un nuevo set de palabras
+          new_words(game, file_words);
+
+          for(int i=0; i<2 ; i++){
+            char partida[1] = {game->partida};
+            //Avisamos que inicio la partida
+            server_send_message(sockets_array[i], 7, partida);
+            //Escribimos en el log file
+            if(write_file_log){
+              write_log(7, partida, i);
+            }
+
+            // Enviamos los puntajes 
+            char points[2] = {p->points, game->players[(i + 1) % 2]->points}; 
+            server_send_message(sockets_array[i], 8, points);
+            //Escribimos en el log file
+            if(write_file_log){
+              write_log(8, points, i);
+            }
+
+            // Enviamos las primeras palabras          
+            server_send_message(sockets_array[i], 9, game->words);
+            //Escribimos en el log file
+            if(write_file_log){
+              write_log(9, game->words, i);
+            }
+          }
+          //Restauramos las respuestas delos clientes para nuevo juego
+          p->new_game = NOTANSWER;
+          game->players[(my_attention + 1) % 2]->new_game = NOTANSWER;
+        }
       }
+
       free(client_message);
-      // Mi atención cambia al otro socket
       my_attention = (my_attention + 1) % 2;
-
     }
 
     /** El cliente se desconecta*/
     else if(msg_code == 17){
       char * client_message = server_receive_payload(sockets_array[my_attention]);
+      //Escribimos en el log file
+      if(write_file_log){
+        write_log(17, client_message, my_attention);
+      }
 
       int adversario = (my_attention + 1) % 2;
 
@@ -315,39 +434,57 @@ int main(int argc, char *argv[]){
       {
         //Avisamos al ganador de la partida
         server_send_message(sockets_array[i], 14, winner);
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(14, winner, i);
+        }
         //Avisamos de la desconexion        
         server_send_message(sockets_array[i], 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", i);
+        }
       }
 
-      //Eliminamos el juego
-      destroy_game(game);
-
       free(client_message);
-
-      // Mi atención cambia al otro socket
       my_attention = (my_attention + 1) % 2;
-
+      sleep(0.2);
+      break;
     }
 
     /** Paquete incorrecto */
     else if(msg_code != 0){
       char * client_message = server_receive_payload(sockets_array[my_attention]);
+      //Escribimos en el log file
+      if(write_file_log){
+        write_log(msg_code, client_message, my_attention);
+      }
 
       //Avisamos al cliente que el paquete es incorrecto
       server_send_message(sockets_array[my_attention], 20, "");
 
+      //Escribimos en el log file
+      if(write_file_log){
+        write_log(20, "", my_attention);
+      }
+
       free(client_message);
-
-      // Mi atención cambia al otro socket
-      my_attention = (my_attention + 1) % 2;
-    }
-
-    else{
-      // Mi atención cambia al otro socket
       my_attention = (my_attention + 1) % 2;
     }
 
     printf("------------------\n");
+  }
+
+  // Se cierra el socket
+  for(int i=0; i<2; i++){
+    close(sockets_array[i]);
+  }
+  //Liberamos la ip
+  //free(IP);
+
+  //Destruimos el juego
+  if(game){
+    destroy_game(game);
   }
 
   return 0;

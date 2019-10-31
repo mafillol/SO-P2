@@ -21,7 +21,9 @@ Player* init_player(char* name,uint8_t ID){
 void destroy_player(Player* p){
 	if(p){
 		free(p->name);
+		p->name = NULL;
 		free(p);
+		p = NULL;
 	}	
 }
 
@@ -42,14 +44,18 @@ void destroy_game(Game* game){
 	}
 	if(game->players){
 		free(game->players);
+		game->players = NULL;
 	}
 	if(game->answer){
 		free(game->answer);
+		game->answer = NULL;
 	}
 	if(game->words){
 		free(game->words);
+		game->words = NULL;
 	}
 	if(game){
 		free(game);
+		game = NULL;
 	}
 }
