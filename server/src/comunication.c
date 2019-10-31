@@ -1,4 +1,5 @@
 #include "comunication.h"
+int size_payload;
 
 int server_receive_id(int client_socket){
   // Se obtiene solamente el ID del mensaje
@@ -11,6 +12,8 @@ char * server_receive_payload(int client_socket){
   // Se obtiene el largo del payload
   int len = 0;
   recv(client_socket, &len, 1, 0);
+  //Guardamos el valor
+  size_payload = len;
   // Se obtiene el payload
   char * payload = malloc(len);
   int received = recv(client_socket, payload, len, 0);

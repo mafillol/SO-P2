@@ -183,6 +183,7 @@ bool word_in_array(char* word, char** cards){
 			}
 		}
 	}
+
 	//Nunca encontramos la palabra
 	return false;
 }
@@ -233,7 +234,8 @@ void new_words(Game* game, char* file_words){
 // Forma de escribir time strap
 // Obtenida de link: http://www.informit.com/articles/article.aspx?p=23618&seqNum=8
 /** Funcion encargada de escribir en log*/
-void write_log(int pkg_id, char* message, int socket){
+void write_log(int pkg_id, char* message, int socket, int size){
+	size = size - 1; //Quitamos el byte de fin de string
 	// Abro el archivo
 	FILE* file_logs = fopen("log.txt", "a");
 
@@ -256,16 +258,16 @@ void write_log(int pkg_id, char* message, int socket){
 
  	//Cambiar como obtener largo payload
 	if(pkg_id == 1){
-		fprintf(file_logs, "[SERVER][PKGE IN] AskConnection received. Package: %d %d %s\n",pkg_id,real_size_payload(pkg_id, message), message);
+		fprintf(file_logs, "[SERVER][PKGE IN] AskConnection received. Package: %d %d %s\n",pkg_id,size, message);
 	}
 	else if(pkg_id == 2){
-		fprintf(file_logs, "[SERVER][PKGE OUT] ConnectionEstablished sended to socket %d. Package: %d %d %d\n",socket+1,pkg_id,real_size_payload(pkg_id, message), (int)message[0]);
+		fprintf(file_logs, "[SERVER][PKGE OUT] ConnectionEstablished sended to socket %d. Package: %d %d %s\n",socket+1,pkg_id,real_size_payload(pkg_id, message), message);
 	}
 	else if(pkg_id == 3){
-		fprintf(file_logs, "[SERVER][PKGE OUT] AskNickname sended to socket %d. Package: %d %d %d\n",socket+1,pkg_id,real_size_payload(pkg_id, message), (int)message[0]);
+		fprintf(file_logs, "[SERVER][PKGE OUT] AskNickname sended to socket %d. Package: %d %d %s\n",socket+1,pkg_id,real_size_payload(pkg_id, message), message);
 	}
 	else if(pkg_id == 4){
-		fprintf(file_logs, "[SERVER][PKGE IN] ReturnNickname received. Package: %d %d %s \n",pkg_id, (int)strlen(message), message);
+		fprintf(file_logs, "[SERVER][PKGE IN] ReturnNickname received. Package: %d %d %s \n",pkg_id, size, message);
 	}
 	else if(pkg_id == 5){
 		fprintf(file_logs, "[SERVER][PKGE OUT] OpponentFound sended to socket %d. Package: %d %d %s\n",socket+1, pkg_id, real_size_payload(pkg_id, message), message);
@@ -298,7 +300,7 @@ void write_log(int pkg_id, char* message, int socket){
 		fprintf(file_logs, "\n");
 	}
 	else if(pkg_id == 10){
-		fprintf(file_logs, "[SERVER][PKGE IN] SendWord received from socket %d. Package: %d %d %s\n",socket+1, pkg_id, real_size_payload(pkg_id,message),message);
+		fprintf(file_logs, "[SERVER][PKGE IN] SendWord received from socket %d. Package: %d %d %s\n",socket+1, pkg_id, size,message);
 	}
 	else if (pkg_id == 11){
 		fprintf(file_logs, "[SERVER][PKGE OUT] ResponseWord sended to socket %d. Package: %d %d %d %d\n", socket+1, pkg_id, real_size_payload(pkg_id,message),(int)message[0], (int)message[1]);
@@ -316,7 +318,7 @@ void write_log(int pkg_id, char* message, int socket){
 		fprintf(file_logs, "[SERVER][PKGE OUT] AskNewGame sended to socket %d. Package: %d %d %s\n",socket+1,pkg_id,(int)strlen(message), message);
 	}
 	else if(pkg_id == 16){
-		fprintf(file_logs, "[SERVER][PKGE IN] AnswerNewGame received from socket %d. Package: %d %d %d", socket+1, pkg_id, real_size_payload(pkg_id,message), (int)message[0]);
+		fprintf(file_logs, "[SERVER][PKGE IN] AnswerNewGame received from socket %d. Package: %d %d %d", socket+1, pkg_id, size, (int)message[0]);
 	}
 	else if(pkg_id == 17){
 		fprintf(file_logs, "[SERVER][PKGE OUT] Disconnect sended to socket %d. Package: %d %d %s\n", socket+1, pkg_id, (int)strlen(message), message);
@@ -325,7 +327,7 @@ void write_log(int pkg_id, char* message, int socket){
 		fprintf(file_logs, "[SERVER][PKGE OUT] Error Bad Package sended to socket %d. Package: %d %d %s\n",socket+1, pkg_id, (int)strlen(message), message);
 	}
 	else{
-		fprintf(file_logs, "[SERVER][PKGE IN] Error Bad Package received from socket %d. Package: %d %d %s\n",socket+1, pkg_id, (int)strlen(message), message);
+		fprintf(file_logs, "[SERVER][PKGE IN] Error Bad Package received from socket %d. Package: %d %d %s\n",socket+1, pkg_id, size, message);
 	}
 	fclose(file_logs); 
 }

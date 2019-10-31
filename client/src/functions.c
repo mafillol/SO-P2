@@ -179,7 +179,8 @@ char* uppercase(char* word){
 // Forma de escribir time strap
 // Obtenida de link: http://www.informit.com/articles/article.aspx?p=23618&seqNum=8
 /** Funcion encargada de escribir en log*/
-void write_log(int pkg_id, char* message){
+void write_log(int pkg_id, char* message, int size){
+	size = size - 1;
 	// Abro el archivo
 	FILE* file_logs = fopen("log.txt", "a");
 
@@ -191,7 +192,7 @@ void write_log(int pkg_id, char* message){
   gettimeofday (&tv, NULL);
   ptm = localtime (&tv.tv_sec);long milliseconds;
 
-  ///Format the date and time, down to a single second
+  //Format the date and time, down to a single second
  	strftime(time_string, sizeof (time_string), "%Y-%m-%d %H:%M:%S", ptm);
 
  	//Obtenemmos los milisegundos de los microsegundos
@@ -205,31 +206,43 @@ void write_log(int pkg_id, char* message){
 		fprintf(file_logs, "[CLIENT][PKGE OUT] AskConnection send to server. Package: %d %d %s\n",pkg_id,real_size_payload(pkg_id, message), message);
 	}
 	else if(pkg_id == 2){
-		fprintf(file_logs, "[CLIENT][PKGE IN] ConnectionEstablished sended from server. Package: %d %d %d\n",pkg_id,real_size_payload(pkg_id, message), (int)message[0]);
+		fprintf(file_logs, "[CLIENT][PKGE IN] ConnectionEstablished sended from server. Package: %d %d %s\n",pkg_id,size, message);
 	}
 	else if(pkg_id == 3){
-		fprintf(file_logs, "[CLIENT][PKGE IN] AskNickname sended from server. Package: %d %d %d\n",pkg_id,real_size_payload(pkg_id, message), (int)message[0]);
+		fprintf(file_logs, "[CLIENT][PKGE IN] AskNickname sended from server. Package: %d %d %s\n",pkg_id,size, message);
 	}
 	else if(pkg_id == 4){
 		fprintf(file_logs, "[CLIENT][PKGE OUT] ReturnNickname send to server. Package: %d %d %s \n",pkg_id, (int)strlen(message), message);
 	}
 	else if(pkg_id == 5){
-		fprintf(file_logs, "[CLIENT][PKGE IN] OpponentFound sended from server. Package: %d %d %s\n", pkg_id, real_size_payload(pkg_id, message), message);
+		fprintf(file_logs, "[CLIENT][PKGE IN] OpponentFound sended from server. Package: %d %d %s\n", pkg_id, size, message);
 	}
 	else if(pkg_id == 6){
-		fprintf(file_logs, "[CLIENT][PKGE IN] SendIDs sended from server. Package: %d %d %d\n", pkg_id, real_size_payload(pkg_id,message), (int)message[0]);
+		fprintf(file_logs, "[CLIENT][PKGE IN] SendIDs sended from server. Package: %d %d", pkg_id, size);
+		for(int i=0; i<size; i++){
+			fprintf(file_logs, " %d", (int)message[i]);
+		}
+		fprintf(file_logs, "\n");
 	}
 	else if(pkg_id == 7){
-		fprintf(file_logs, "[CLIENT][PKGE IN] StartGame sended from server. Package: %d %d %d\n", pkg_id, real_size_payload(pkg_id,message), (int)message[0]);
+		fprintf(file_logs, "[CLIENT][PKGE IN] StartGame sended from server. Package: %d %d", pkg_id, size);
+		for(int i=0; i<size; i++){
+			fprintf(file_logs, " %d", (int)message[i]);
+		}
+		fprintf(file_logs, "\n");
 	}
 	else if(pkg_id == 8){
-		fprintf(file_logs, "[CLIENT][PKGE IN] SendScore sended from server. Package: %d %d %d %d\n",pkg_id, real_size_payload(pkg_id,message), (int)message[0], (int)message[1]);
+		fprintf(file_logs, "[CLIENT][PKGE IN] SendScore sended from server. Package: %d %d",pkg_id,size);
+		for(int i=0; i<size; i++){
+			fprintf(file_logs, " %d", (int)message[i]);
+		}
+		fprintf(file_logs, "\n");
 	}
 	else if(pkg_id == 9){
-		fprintf(file_logs, "[CLIENT][PKGE IN] SendCards sended from server.Package: %d %d",pkg_id, real_size_payload(pkg_id,message));
+		fprintf(file_logs, "[CLIENT][PKGE IN] SendCards sended from server.Package: %d %d",pkg_id, size);
 		int aux = 0;
 		int count = 0;
-		while(count<20){
+		while(aux<size){
 			int largo = message[aux];
 			fprintf(file_logs, " %d ",largo);
 			for(int i=aux+1;i<aux+largo+1;i++){
@@ -247,28 +260,44 @@ void write_log(int pkg_id, char* message){
 		fprintf(file_logs, "[CLIENT][PKGE OUT] SendWord send to server. Package: %d %d %s\n",pkg_id, real_size_payload(pkg_id,message),message);
 	}
 	else if (pkg_id == 11){
-		fprintf(file_logs, "[CLIENT][PKGE IN] ResponseWord sended from server. Package: %d %d %d %d\n", pkg_id, real_size_payload(pkg_id,message),(int)message[0], (int)message[1]);
+		fprintf(file_logs, "[CLIENT][PKGE IN] ResponseWord sended from server. Package: %d %d", pkg_id, size);
+		for(int i=0; i<size; i++){
+			fprintf(file_logs, " %d", (int)message[i]);
+		}
+		fprintf(file_logs, "\n");
 	}
 	else if(pkg_id == 12){
-		fprintf(file_logs, "[CLIENT][PKGE IN] RoundWinnerLoser sended from server. Package: %d %d %d\n", pkg_id, real_size_payload(pkg_id,message), (int)message[0]);
+		fprintf(file_logs, "[CLIENT][PKGE IN] RoundWinnerLoser sended from server. Package: %d %d", pkg_id, size);
+		for(int i=0; i<size; i++){
+			fprintf(file_logs, " %d", (int)message[i]);
+		}
+		fprintf(file_logs, "\n");
 	}
 	else if(pkg_id == 13){
-		fprintf(file_logs, "[CLIENT][PKGE IN] EndGame sended from server. Package: %d %d %d\n", pkg_id, real_size_payload(pkg_id,message), (int)message[0]);
+		fprintf(file_logs, "[CLIENT][PKGE IN] EndGame sended from server. Package: %d %d", pkg_id,size);
+		for(int i=0; i<size; i++){
+			fprintf(file_logs, " %d", (int)message[i]);
+		}
+		fprintf(file_logs, "\n");
 	}
 	else if(pkg_id == 14){
-		fprintf(file_logs, "[CLIENT][PKGE IN] GameWinnerLoser sended from server. Package: %d %d %d\n", pkg_id, real_size_payload(pkg_id,message), (int)message[0]);
+		fprintf(file_logs, "[CLIENT][PKGE IN] GameWinnerLoser sended from server. Package: %d %d", pkg_id, size);
+		for(int i=0; i<size; i++){
+			fprintf(file_logs, " %d", (int)message[i]);
+		}
+		fprintf(file_logs, "\n");
 	}
 	else if(pkg_id == 15){
-		fprintf(file_logs, "[CLIENT][PKGE IN] AskNewGame sended from server. Package: %d %d %s\n", pkg_id, (int)strlen(message), message);
+		fprintf(file_logs, "[CLIENT][PKGE IN] AskNewGame sended from server. Package: %d %d %s\n", pkg_id, size, message);
 	}
 	else if(pkg_id == 16){
-		fprintf(file_logs, "[CLIENT][PKGE OUT] AnswerNewGame send to server. Package: %d %d %d", pkg_id, (int)strlen(message), (int)message[0]);
+		fprintf(file_logs, "[CLIENT][PKGE OUT] AnswerNewGame send to server. Package: %d %d %d", pkg_id, real_size_payload(pkg_id, message), (int)message[0]);
 	}
 	else if(pkg_id == 17){
-		fprintf(file_logs, "[CLIENT][PKGE IN] Disconnect sended from server. Package: %d %d %s\n", pkg_id, (int)strlen(message), message);
+		fprintf(file_logs, "[CLIENT][PKGE IN] Disconnect sended from server. Package: %d %d %s\n", pkg_id, size, message);
 	}
 	else if(pkg_id == 20){
-		fprintf(file_logs, "[CLIENT][PKGE IN] Error Bad Package sended from server. Package: %d %d %s\n",pkg_id, (int)strlen(message), message);
+		fprintf(file_logs, "[CLIENT][PKGE IN] Error Bad Package sended from server. Package: %d %d %s\n",pkg_id, size, message);
 	}
 	fclose(file_logs); 
 }

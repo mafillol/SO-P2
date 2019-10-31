@@ -40,4 +40,4 @@ char* uppercase(char* word);
 // Forma de escribir time strap
 // Obtenida de link: http://www.informit.com/articles/article.aspx?p=23618&seqNum=8
 /** Funcion encargada de escribir en log*/
-void write_log(int pkg_id, char* message);
+void write_log(int pkg_id, char* message, int size);

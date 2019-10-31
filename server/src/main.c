@@ -12,6 +12,8 @@
 char* file_words = "palabras.txt";
 bool write_file_log = false;
 
+extern int size_payload;
+
 char * IP;
 int PORT;
 
@@ -68,20 +70,42 @@ int main(int argc, char *argv[]){
 
       //Escribimos en el log file
       if(write_file_log){
-        write_log(msg_code, client_message, 0);
+        write_log(msg_code, client_message, 0, size_payload);
+      }
+
+      //Paquete mal construido
+      if(strlen(client_message) != 0 || (size_payload != 0 && size_payload != 1)){
+        //Avisamos que el paquete esta mal construido
+        server_send_message(sockets_array[my_attention], 20, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(20, "", my_attention, 0);
+        }
+        //Desconectamos a los clientes
+        for (int i = 0; i < 2; ++i)
+        {
+          //Avisamos de la desconexion        
+          server_send_message(sockets_array[i], 17, "");
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(17, "", i, 0);
+          }
+        }
+        free(client_message);
+        break; //Terminamos la ejecucion
       }
 
       //Avisamos que se establecio la conexion
       server_send_message(sockets_array[my_attention], 2, "");
       //Escribimos en el log file
       if(write_file_log){
-        write_log(2, "", my_attention);
+        write_log(2, "", my_attention, 0);
       }
       //Preguntamos por el nickname
       server_send_message(sockets_array[my_attention], 3, "");
        //Escribimos en el log file
       if(write_file_log){
-        write_log(3, "", my_attention);
+        write_log(3, "", my_attention, 0);
       }
 
       free(client_message);
@@ -92,7 +116,29 @@ int main(int argc, char *argv[]){
       char * client_message = server_receive_payload(sockets_array[my_attention]);
       //Escribimos en el log file
       if(write_file_log){
-        write_log(4, client_message, my_attention);
+        write_log(4, client_message, my_attention, size_payload);
+      }
+
+      //Paquete mal construido
+      if(strlen(client_message) == 0 || size_payload == 0){
+        //Avisamos que el paquete esta mal construido
+        server_send_message(sockets_array[my_attention], 20, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(20, "", my_attention, 0);
+        }
+        //Desconectamos a los clientes
+        for (int i = 0; i < 2; ++i)
+        {
+          //Avisamos de la desconexion        
+          server_send_message(sockets_array[i], 17, "");
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(17, "", i, 0);
+          }
+        }
+        free(client_message);
+        break; //Terminamos la ejecucion
       }
       Player* p = init_player(client_message, my_attention + 1);
 
@@ -108,7 +154,7 @@ int main(int argc, char *argv[]){
       server_send_message(sockets_array[my_attention], 6, id);
       //Escribimos en el log file
       if(write_file_log){
-        write_log(6, id, my_attention);
+        write_log(6, id, my_attention, 0);
       }
 
       //Si se encuentra un contrincante
@@ -125,7 +171,7 @@ int main(int argc, char *argv[]){
           server_send_message(sockets_array[i], 5, game->players[adversario]->name);
           //Escribimos en el log file
           if(write_file_log){
-            write_log(5, game->players[adversario]->name, i);
+            write_log(5, game->players[adversario]->name, i, 0);
           }
 
 
@@ -134,7 +180,7 @@ int main(int argc, char *argv[]){
           server_send_message(sockets_array[i], 7, partida);
            //Escribimos en el log file
           if(write_file_log){
-            write_log(7, partida, i);
+            write_log(7, partida, i, 0);
           }
 
           // Enviamos los puntajes 
@@ -143,14 +189,14 @@ int main(int argc, char *argv[]){
           server_send_message(sockets_array[i], 8, points);
           //Escribimos en el log file
           if(write_file_log){
-            write_log(8, points, i);
+            write_log(8, points, i, 0);
           }
 
           // Enviamos las primeras palabras          
           server_send_message(sockets_array[i], 9, game->words);
           //Escribimos en el log file
           if(write_file_log){
-            write_log(9, game->words, i);
+            write_log(9, game->words, i, 0);
           }
         }
       }
@@ -163,8 +209,31 @@ int main(int argc, char *argv[]){
 
       //Escribimos en el log file
       if(write_file_log){
-        write_log(msg_code, client_message, my_attention);
+        write_log(msg_code, client_message, my_attention, size_payload);
       }
+
+      //Paquete mal construido
+      if(strlen(client_message) != 0 || (size_payload != 0 && size_payload != 1)){
+        //Avisamos que el paquete esta mal construido
+        server_send_message(sockets_array[my_attention], 20, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(20, "", my_attention, 0);
+        }
+        //Desconectamos a los clientes
+        for (int i = 0; i < 2; ++i)
+        {
+          //Avisamos de la desconexion        
+          server_send_message(sockets_array[i], 17, "");
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(17, "", i, 0);
+          }
+        }
+        free(client_message);
+        break; //Terminamos la ejecucion
+      }
+
       int adversario = (my_attention + 1) % 2;
       
       Player* p = game->players[my_attention];
@@ -184,7 +253,7 @@ int main(int argc, char *argv[]){
           server_send_message(sockets_array[my_attention], 11, response);
           //Escribimos en el log file
           if(write_file_log){
-            write_log(11, response, my_attention);
+            write_log(11, response, my_attention, 0);
           }
 
           //Guardamos que el usuario ha respondido
@@ -215,7 +284,7 @@ int main(int argc, char *argv[]){
 
           //Escribimos en el log file
           if(write_file_log){
-            write_log(11, response, my_attention);
+            write_log(11, response, my_attention, 0);
           }
 
           //Si ya no me quedan intentos
@@ -228,7 +297,7 @@ int main(int argc, char *argv[]){
             server_send_message(sockets_array[my_attention], 9, game->words);
             //Escribimos en el log file
             if(write_file_log){
-              write_log(9, game->words, my_attention);
+              write_log(9, game->words, my_attention, 0);
             }
           }
 
@@ -258,7 +327,7 @@ int main(int argc, char *argv[]){
           server_send_message(sockets_array[i], 12, round_winner);
           //Escribimos en el log file
           if(write_file_log){
-            write_log(12, round_winner, i);
+            write_log(12, round_winner, i, 0);
           }
         }
 
@@ -276,7 +345,7 @@ int main(int argc, char *argv[]){
             server_send_message(sockets_array[i], 13, partida);
             //Escribimos en el log file
             if(write_file_log){
-              write_log(13, partida, i);
+              write_log(13, partida, i, 0);
             }
           }
 
@@ -308,14 +377,14 @@ int main(int argc, char *argv[]){
 
             //Escribimos en el log file
             if(write_file_log){
-              write_log(14, winner, i);
+              write_log(14, winner, i,0 );
             }
             
             //Preguntamos por un juego nuevo
             server_send_message(sockets_array[i], 15, "");
             //Escribimos en el log file
             if(write_file_log){
-              write_log(15, "", i);
+              write_log(15, "", i, 0);
             }
           }
         }
@@ -340,14 +409,14 @@ int main(int argc, char *argv[]){
             server_send_message(sockets_array[i], 8, points);
             //Escribimos en el log file
             if(write_file_log){
-              write_log(8, points, i);
+              write_log(8, points, i, 0);
             }
 
             // Enviamos las nuevas palabras de la ronda        
             server_send_message(sockets_array[i], 9, game->words);
             //Escribimos en el log file
             if(write_file_log){
-              write_log(9, game->words, i);
+              write_log(9, game->words, i, 4);
             }
           }
         }
@@ -361,7 +430,28 @@ int main(int argc, char *argv[]){
       char * client_message = server_receive_payload(sockets_array[my_attention]);
       //Escribimos en el log file
       if(write_file_log){
-        write_log(msg_code, client_message, my_attention);
+        write_log(msg_code, client_message, my_attention, size_payload);
+      }
+      //Paquete mal construido
+      if(strlen(client_message) != 0 || (size_payload != 0 && size_payload != 1)){
+        //Avisamos que el paquete esta mal construido
+        server_send_message(sockets_array[my_attention], 20, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(20, "", my_attention, 0);
+        }
+        //Desconectamos a los clientes
+        for (int i = 0; i < 2; ++i)
+        {
+          //Avisamos de la desconexion        
+          server_send_message(sockets_array[i], 17, "");
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(17, "", i, 0);
+          }
+        }
+        free(client_message);
+        break; //Terminamos la ejecucion
       }
       int response = client_message[0];
 
@@ -371,8 +461,20 @@ int main(int argc, char *argv[]){
         server_send_message(sockets_array[my_attention], 20, "");
         //Escribimos en el log file
         if(write_file_log){
-          write_log(20, "", my_attention);
+          write_log(20, "", my_attention, 0);
         }
+        //Desconectamos a los clientes
+        for (int i = 0; i < 2; ++i)
+        {
+          //Avisamos de la desconexion        
+          server_send_message(sockets_array[i], 17, "");
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(17, "", i, 0);
+          }
+        }
+        free(client_message);
+        break; //Terminamos la ejecucion
       }
 
       else{
@@ -384,10 +486,11 @@ int main(int argc, char *argv[]){
             server_send_message(sockets_array[i], 17, "");
             //Escribimos en el log file
             if(write_file_log){
-              write_log(17, "", i);
+              write_log(17, "", i, 0);
             }
-            break;
           }
+          free(client_message);
+          break;
         }
 
         Player* p = game->players[my_attention];
@@ -409,7 +512,7 @@ int main(int argc, char *argv[]){
             server_send_message(sockets_array[i], 7, partida);
             //Escribimos en el log file
             if(write_file_log){
-              write_log(7, partida, i);
+              write_log(7, partida, i, 0);
             }
 
             // Enviamos los puntajes
@@ -418,14 +521,14 @@ int main(int argc, char *argv[]){
             server_send_message(sockets_array[i], 8, points);
             //Escribimos en el log file
             if(write_file_log){
-              write_log(8, points, i);
+              write_log(8, points, i, 0);
             }
 
             // Enviamos las primeras palabras          
             server_send_message(sockets_array[i], 9, game->words);
             //Escribimos en el log file
             if(write_file_log){
-              write_log(9, game->words, i);
+              write_log(9, game->words, i, 0);
             }
           }
           //Restauramos las respuestas delos clientes para nuevo juego
@@ -440,9 +543,32 @@ int main(int argc, char *argv[]){
     /** El cliente se desconecta*/
     else if(msg_code == 17){
       char * client_message = server_receive_payload(sockets_array[my_attention]);
+
       //Escribimos en el log file
       if(write_file_log){
-        write_log(17, client_message, my_attention);
+        write_log(17, client_message, my_attention, size_payload);
+      }
+
+      //Paquete mal construido
+      if(strlen(client_message) != 0 || (size_payload != 0 && size_payload != 1)){
+        //Avisamos que el paquete esta mal construido
+        server_send_message(sockets_array[my_attention], 20, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(20, "", my_attention, 0);
+        }
+        //Desconectamos a los clientes
+        for (int i = 0; i < 2; ++i)
+        {
+          //Avisamos de la desconexion        
+          server_send_message(sockets_array[i], 17, "");
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(17, "", i, 0);
+          }
+        }
+        free(client_message);
+        break; //Terminamos la ejecucion
       }
 
       int adversario = (my_attention + 1) % 2;
@@ -456,13 +582,13 @@ int main(int argc, char *argv[]){
         server_send_message(sockets_array[i], 14, winner);
         //Escribimos en el log file
         if(write_file_log){
-          write_log(14, winner, i);
+          write_log(14, winner, i, 0);
         }
         //Avisamos de la desconexion        
         server_send_message(sockets_array[i], 17, "");
         //Escribimos en el log file
         if(write_file_log){
-          write_log(17, "", i);
+          write_log(17, "", i, 0);
         }
       }
       //Liberamos la memoria
@@ -475,7 +601,7 @@ int main(int argc, char *argv[]){
       char * client_message = server_receive_payload(sockets_array[my_attention]);
       //Escribimos en el log file
       if(write_file_log){
-        write_log(msg_code, client_message, my_attention);
+        write_log(msg_code, client_message, my_attention, size_payload);
       }
 
       //Avisamos al cliente que el paquete es incorrecto
@@ -483,10 +609,21 @@ int main(int argc, char *argv[]){
 
       //Escribimos en el log file
       if(write_file_log){
-        write_log(20, "", my_attention);
+        write_log(20, "", my_attention, 0);
       }
-
+      
+      //Desconectamos a los clientes
+      for (int i = 0; i < 2; ++i)
+      {
+        //Avisamos de la desconexion        
+        server_send_message(sockets_array[i], 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", i, 0);
+        }
+      }
       free(client_message);
+      break; //Terminamos la ejecucion
     }
     //Escuchamos al otro cliente
     my_attention = (my_attention + 1) % 2;
