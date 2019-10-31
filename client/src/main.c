@@ -8,6 +8,8 @@
 #include "functions.h"
 
 int ID;
+char * IP;
+int PORT;
 
 char * get_input(){
   char * response = malloc(20);
@@ -24,65 +26,95 @@ char * get_input(){
 
 int main (int argc, char *argv[]){
   //Se obtiene la ip y el puerto donde está escuchando el servidor (la ip y puerto de este cliente da igual)
-  char * IP = "127.0.1.1";
-  int PORT = 8070;
+  for(int i=0; i<argc; i++){
+    if(strcmp(argv[i], "-l") == 0){
+      write_file_log = true;
+      FILE* f = fopen("log.txt", "w+");
+      fclose(f);
+    }
+    if(strcmp(argv[i], "-i") == 0){
+      IP = argv[i+1];
+    }
+    if(strcmp(argv[i], "-p") == 0){
+      PORT = argv[i+1] - "0";
+    }
+  }
+  
+  IP = "127.0.1.1";
+  PORT = 8070;
 
   // Se prepara el socket
   int server_socket = prepare_socket(IP, PORT);
 
-  //Se avisa al servidor que queremos conectarnos
+  /** Se avisa al servidor que queremos conectarnos*/
   client_send_message(server_socket, 1 , "");
+
   // Se inicializa un loop para recibir todo tipo de paquetes y tomar una acción al respecto
   while (1){
     int msg_code = client_receive_id(server_socket);
 
-    //Establecemos conexion con el servidor
+    /** Establecemos conexion con el servidor*/
     if (msg_code == 2) { 
       char * message = client_receive_payload(server_socket);
       printf("Conexion establecida con servidor...\n");
       free(message);
     }
 
-    //Establecemos un nickname
+    /** Establecemos un nickname*/
     else if (msg_code == 3) { 
       char * message = client_receive_payload(server_socket);
+
+      //Obtenemos en nick del cliente
       printf("Ingrese un nick para la partida:\t");
       char* name = get_input();
+
+      //Enviamos el nombre al servidor
       client_send_message(server_socket, 4, name);
+
+      free(name);
       free(message);
     }
-    //Se encontro oponente para la partida
+    /** Se encontro oponente para la partida*/
     else if (msg_code == 5) { 
       char * message = client_receive_payload(server_socket);
+
       printf("Partida iniciada con contrincante: %s\n", message);
+
       free(message);
     }
 
-    //Servidor envia ID
+    /**Servidor envia ID*/
     else if(msg_code == 6){
       char * message = client_receive_payload(server_socket);
+
       printf("Tu id personal es: %d\n", (int)message[0]);
+
       ID = message[0];
       free(message);
     }
 
-    //Partida iniciada correctamente
+    /** Partida iniciada correctamente*/
     else if(msg_code == 7){
       char * message = client_receive_payload(server_socket);
+
       printf("Partida %d iniciada.\n", (int)message[0]);
+
       free(message);
     }
 
-    //Se desplegan los puntajes de los jugadores
+    /** Se desplegan los puntajes de los jugadores*/
     else if(msg_code == 8){
       char * message = client_receive_payload(server_socket);
+
       printf("Tu puntaje es: %d\tEl puntaje de tu contrincante es: %d\n", (int)message[0],(int)message[1]);
+      
       free(message);
     }
 
-    //Se envían las cartas
+    /** Se envian las palabras*/
     else if(msg_code == 9){
       char * message = client_receive_payload(server_socket);
+
       // Imprimimos las cartas
       print_cards(message);
 
@@ -100,12 +132,14 @@ int main (int argc, char *argv[]){
       else{
         client_send_message(server_socket, 10, response);
       }
-      
+
+      //Liberamos la memoria
+      free(response);
       free(upper);
       free(message);
     }
 
-    //Resultado de respuesta
+    /** Resultado de respuesta*/
     else if(msg_code == 11){
       char * message = client_receive_payload(server_socket);
       int response = message[0];
@@ -134,7 +168,7 @@ int main (int argc, char *argv[]){
       free(message);
     }
 
-    //Ronda terminada
+    /** Ronda terminada*/
     else if(msg_code == 12){
       char * message = client_receive_payload(server_socket);
       int response = message[0];
@@ -155,7 +189,7 @@ int main (int argc, char *argv[]){
 
     }
 
-    //Partida terminada
+    /** Partida terminada*/
     else if(msg_code == 13){
       char * message = client_receive_payload(server_socket);
       printf("Partida %d terminada.\n", message[0]);
@@ -178,7 +212,7 @@ int main (int argc, char *argv[]){
       free(message);
     }
 
-    //Pregunta por un nuevo juego
+    /** Pregunta por un nuevo juego*/
     else if(msg_code == 15){
       char * message = client_receive_payload(server_socket);
       bool answer = false;
@@ -203,7 +237,7 @@ int main (int argc, char *argv[]){
       }
     }
     
-    //Nos desconectan 
+    /** Servidor envía desconexion */ 
     else if(msg_code == 17){
       char * message = client_receive_payload(server_socket);
       printf("Desconectando del servidor...\n");
@@ -212,11 +246,20 @@ int main (int argc, char *argv[]){
       break; 
     }
 
-    //Error del servidor
+    /** Servidor manda paquete mal contruido o desconocido*/
     else if(msg_code == 20){
       char * message = client_receive_payload(server_socket);
       printf("ERROR: ID desconocido o paquete mal contruido\n");
       free(message);
+    }
+
+    /** Error inesperado del servidor*/
+    else if(msg_code == 0){
+      char * message = client_receive_payload(server_socket);
+      printf("Ha ocurrido un error inesperado con el servidor.\n");
+      printf("Terminando programa....\n");
+      free(message);
+      break;
     }
 
     printf("------------------\n");

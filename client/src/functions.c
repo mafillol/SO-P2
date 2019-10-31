@@ -1,4 +1,5 @@
 #include "functions.h"
+#include "comunication.h"
 
 /** Imprime las cartas a partir del payload*/
 void print_cards(char* long_string){

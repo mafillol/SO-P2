@@ -17,6 +17,7 @@ int PORT;
 
 int main(int argc, char *argv[]){
 
+  // Se define una IP, un puerto y logs
   for(int i=0; i<argc; i++){
     if(strcmp(argv[i], "-l") == 0){
       write_file_log = true;
@@ -30,10 +31,11 @@ int main(int argc, char *argv[]){
       PORT = argv[i+1] - "0";
     }
   }
-  // Se define una IP y un puerto
+  
   IP = "127.0.1.1";
   PORT = 8070;
 
+  //Juego entre clientes
   Game* game = NULL; 
 
   // Se crea el servidor y se obtienen los sockets de ambos clientes.
@@ -469,9 +471,11 @@ int main(int argc, char *argv[]){
           write_log(17, "", i);
         }
       }
+      //Liberamos la memoria
       free(winner);
-
       free(client_message);
+
+      //Escuchamos al otro cliente
       my_attention = (my_attention + 1) % 2;
       sleep(0.2);
       break;
@@ -504,9 +508,11 @@ int main(int argc, char *argv[]){
   for(int i=0; i<2; i++){
     close(sockets_array[i]);
   }
-  //Liberamos la ip
-  //free(IP);
-
+  // Liberamos la lista de jugadores
+  if(players_info){
+    free(players_info);
+  }
+  
   //Destruimos el juego
   if(game){
     destroy_game(game);

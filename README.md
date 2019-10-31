@@ -26,3 +26,4 @@ Una vez que el servidor se encuentre corriendo, es necesario que los dos cliente
 
 ## Supuestos
 Dado que el enunciado no especifica, se asumio que el archivo de las 500 palabras a leer por el servidor se encuentran dentro del archivo palabras.txt (siguiendo asi el ejemplo de la ayudantia).
+Cuando un usuario decide desconectarse, pierde inmediatamente la partida.

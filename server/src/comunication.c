@@ -34,7 +34,7 @@ void server_send_message(int client_socket, int pkg_id, char * message){
 int real_size_payload(int pkg_id, char* message){
   int payloadSize;
 
-  if(pkg_id == 4 || pkg_id == 12 || pkg_id == 6 || pkg_id == 14 || pkg_id == 13){
+  if(pkg_id == 3 || pkg_id == 12 || pkg_id == 6 || pkg_id == 14 || pkg_id == 13){
     payloadSize = 1;
   }
 

@@ -36,8 +36,16 @@ void client_send_message(int client_socket, int pkg_id, char * message){
 int real_size_payload(int pkg_id, char* message){
   int payloadSize;
 
-  if(pkg_id == 16){
+  if( pkg_id = 3 || pkg_id == 12 || pkg_id == 6 || pkg_id == 14 || pkg_id == 13 || pkg_id == 16){
     payloadSize = 1;
+  }
+
+  else if(pkg_id == 9){
+    payloadSize = real_size_long_string(message);
+  }
+
+  else if(pkg_id == 11 || pkg_id == 8){
+    payloadSize = 2;
   }
 
   else{
@@ -45,4 +53,18 @@ int real_size_payload(int pkg_id, char* message){
   }
 
   return payloadSize;
+}
+
+/** Retorna el verdadero largo del long string de cartas*/
+int real_size_long_string(char* long_string){
+  int total_size = 0;
+  int aux = 0;
+  int count = 0;
+  while(count<20){
+    int largo = long_string[aux];
+    total_size = total_size + largo + 2;
+    count++;
+    aux = aux + largo + 2;
+  }
+  return total_size;
 }
