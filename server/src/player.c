@@ -33,13 +33,15 @@ Game* init_game(){
 	g->n_players = 0;
 	g->partida = 1;
 	g->round = 1;
-	g->players =(Player**) malloc(2 * sizeof(Player*));
+	g->players =(Player**) calloc(2,sizeof(Player*));
+	g->answer = NULL;
+	g->words = NULL;
 	return g;
 }
 
 /** Destruye un juego*/
 void destroy_game(Game* game){
-	for(int i= 0; i<game->n_players; i++){
+	for(int i= 0; i<2; i++){
 		destroy_player(game->players[i]);
 	}
 	if(game->players){

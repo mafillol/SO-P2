@@ -34,7 +34,7 @@ int main(int argc, char *argv[]){
   IP = "127.0.1.1";
   PORT = 8070;
 
-  Game* game = NULL;  
+  Game* game = NULL; 
 
   // Se crea el servidor y se obtienen los sockets de ambos clientes.
   PlayersInfo * players_info = prepare_sockets_and_get_clients(IP, PORT);
@@ -87,22 +87,23 @@ int main(int argc, char *argv[]){
         write_log(4, client_message, my_attention);
       }
       Player* p = init_player(client_message, my_attention + 1);
-      if(!game){
-        game = init_game();
-      }
 
+      if(!game){
+         game = init_game();
+      }
       game->players[my_attention] = p;
       game->n_players++;
 
-      char id[1] = {p->id};
+      char* id = (char*)calloc(2,sizeof(char));
+      id[0] = p->id;
 
       //Enviamos el id del jugador
       server_send_message(sockets_array[my_attention], 6, id);
       //Escribimos en el log file
       if(write_file_log){
-        write_log(msg_code, client_message, my_attention);
+        write_log(6, id, my_attention);
       }
-
+      free(id);
       //Si se encuentra un contrincante
       if(game->n_players>=2){
 
@@ -119,22 +120,26 @@ int main(int argc, char *argv[]){
           if(write_file_log){
             write_log(5, game->players[adversario]->name, i);
           }
-
-          char partida[1] = {game->partida};
+          char* partida = (char*)calloc(2,sizeof(char));
+          partida[0] = game->partida;
           //Avisamos que inicio la partida
           server_send_message(sockets_array[i], 7, partida);
            //Escribimos en el log file
           if(write_file_log){
             write_log(7, partida, i);
           }
+          free(partida);
 
           // Enviamos los puntajes 
-          char points[2] = {p->points, game->players[adversario]->points}; 
+          char* points = (char*)calloc(3, sizeof(char));
+          points[0] = p->points;
+          points[1] = game->players[adversario]->points;
           server_send_message(sockets_array[i], 8, points);
           //Escribimos en el log file
           if(write_file_log){
             write_log(8, points, i);
           }
+          free(points);
 
           // Enviamos las primeras palabras          
           server_send_message(sockets_array[i], 9, game->words);
@@ -170,7 +175,9 @@ int main(int argc, char *argv[]){
 
         // Si la respuesta es correcta
         if(strcmp(client_message, game->answer) == 0){
-          char response[2] = {1, p->aim};
+          char* response = (char*)calloc(3, sizeof(char));
+          response[0] = 1;
+          response[1] = p->aim;
 
           //Enviamos la respuesta y los intentos
           server_send_message(sockets_array[my_attention], 11, response);
@@ -178,6 +185,7 @@ int main(int argc, char *argv[]){
           if(write_file_log){
             write_log(11, response, my_attention);
           }
+          free(response);
 
           //Guardamos que el usuario ha respondido
           p->answer = true;
@@ -200,7 +208,9 @@ int main(int argc, char *argv[]){
         }
         //Si la respuesta es incorrecta
         else{
-          char response[2] = {0, p->aim};
+          char* response = (char*)calloc(3, sizeof(char));
+          response[0] = 0;
+          response[1] = p->aim;
 
           //Enviamos la respuesta y los intentos
           server_send_message(sockets_array[my_attention], 11, response);
@@ -209,6 +219,8 @@ int main(int argc, char *argv[]){
           if(write_file_log){
             write_log(11, response, my_attention);
           }
+          free(response);
+
           //Si ya no me quedan intentos
           if(p->aim == 0){
             p->answer = true;
@@ -229,7 +241,7 @@ int main(int argc, char *argv[]){
       //Si ambos jugadores contestaron, la ronda termina
       if(p->answer && game->players[adversario]->answer){
 
-        char round_winner[1];
+        char* round_winner = (char*)calloc(2, sizeof(char));
         //El ganador es el jugador actual
         if (p->round_point > game->players[adversario]->round_point){
           round_winner[0] = p->id;
@@ -251,6 +263,7 @@ int main(int argc, char *argv[]){
             write_log(12, round_winner, i);
           }
         }
+        free(round_winner);
 
         //Avanzamos en la ronda
         game->round++;
@@ -258,7 +271,8 @@ int main(int argc, char *argv[]){
         //Se termina la partida
         if(game->round == 5){
 
-          char partida[1] = {game->partida};
+          char* partida = (char*)calloc(2,sizeof(char));
+          partida[0] = game->partida;
           //Avisamos el fin de la partida
           for (int i = 0; i < 2; ++i)
           {
@@ -268,7 +282,9 @@ int main(int argc, char *argv[]){
               write_log(13, partida, i);
             }
           }
-          char winner[1];
+          free(partida);
+
+          char* winner = (char*)calloc(2, sizeof(char));
           //El ganador de la partida es el jugador actual
           if(game->players[0]->points > game->players[1]->points){
             winner[0] = game->players[0]->id;
@@ -298,7 +314,7 @@ int main(int argc, char *argv[]){
               write_log(15, "", i);
             }
           }
-
+          free(winner);
         }
 
         //Avanza a la siguiente ronda
@@ -315,13 +331,16 @@ int main(int argc, char *argv[]){
             p->round_point = 0; //Limpiamos el puntaje de la ronda
             p->aim = 3;  //Restauramos los intentos
 
-            // Enviamos los puntajes 
-            char points[2] = {p->points, game->players[(i + 1) %2]->points}; 
+            // Enviamos los puntajes
+            char* points = (char*)calloc(3,sizeof(char));
+            points[0] = p->points;
+            points[1] = game->players[(i + 1) %2]->points;
             server_send_message(sockets_array[i], 8, points);
             //Escribimos en el log file
             if(write_file_log){
               write_log(8, points, i);
             }
+            free(points);
 
             // Enviamos las nuevas palabras de la ronda        
             server_send_message(sockets_array[i], 9, game->words);
@@ -384,22 +403,26 @@ int main(int argc, char *argv[]){
           new_words(game, file_words);
 
           for(int i=0; i<2 ; i++){
-            char partida[1] = {game->partida};
+            char* partida = (char*)calloc(2, sizeof(char));
+            partida[0] = game->partida;
             //Avisamos que inicio la partida
             server_send_message(sockets_array[i], 7, partida);
             //Escribimos en el log file
             if(write_file_log){
               write_log(7, partida, i);
             }
+            free(partida);
 
-            // Enviamos los puntajes 
-            char points[2] = {p->points, game->players[(i + 1) % 2]->points}; 
+            // Enviamos los puntajes
+            char* points = (char*)calloc(3,sizeof(char));
+            points[0] = p->points;
+            points[1] = game->players[(i + 1) %2]->points;
             server_send_message(sockets_array[i], 8, points);
             //Escribimos en el log file
             if(write_file_log){
               write_log(8, points, i);
             }
-
+            free(points);
             // Enviamos las primeras palabras          
             server_send_message(sockets_array[i], 9, game->words);
             //Escribimos en el log file
@@ -428,7 +451,8 @@ int main(int argc, char *argv[]){
       int adversario = (my_attention + 1) % 2;
 
       //El ganador es el jugador que no se desconecta
-      char winner[1] = {game->players[adversario]->id};
+      char* winner = (char*)calloc(2, sizeof(char));
+      winner[0] = game->players[adversario]->id;
 
       for (int i = 0; i < 2; ++i)
       {
@@ -445,6 +469,7 @@ int main(int argc, char *argv[]){
           write_log(17, "", i);
         }
       }
+      free(winner);
 
       free(client_message);
       my_attention = (my_attention + 1) % 2;
