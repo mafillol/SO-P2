@@ -41,10 +41,7 @@ int main (int argc, char *argv[]){
       PORT = argv[i+1] - "0";
     }
   }
-
-  IP = "127.0.1.1";
-  PORT = 8070;
-
+  
   // Se prepara el socket
   int server_socket = prepare_socket(IP, PORT);
 

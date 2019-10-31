@@ -34,9 +34,6 @@ int main(int argc, char *argv[]){
       PORT = argv[i+1] - "0";
     }
   }
-  
-  IP = "127.0.1.1";
-  PORT = 8070;
 
   //Juego entre clientes
   Game* game = NULL; 
@@ -47,7 +44,6 @@ int main(int argc, char *argv[]){
   // Guardaremos los sockets en un arreglo e iremos alternando a quién escuchar.
   int sockets_array[2] = {players_info->socket_c1, players_info->socket_c2};
  
-
   int my_attention = 0;
 
   while (1)
