@@ -22,6 +22,12 @@ PlayersInfo * prepare_sockets_and_get_clients(char * IP, int port){
   // Se le asigna al socket del servidor un puerto y una IP donde escuchar
   int ret2 = bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr));
 
+  //Agregamos un timeout 
+  struct timeval tv;
+  tv.tv_sec = 5; //Timeout de 5 segundos
+  tv.tv_usec = 0;
+  setsockopt(server_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
+
   // Se coloca el socket en modo listening
   int ret3 = listen(server_socket, 1);
 

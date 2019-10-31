@@ -44,6 +44,7 @@ int main(int argc, char *argv[]){
 
   // Guardaremos los sockets en un arreglo e iremos alternando a quién escuchar.
   int sockets_array[2] = {players_info->socket_c1, players_info->socket_c2};
+ 
 
   int my_attention = 0;
 
@@ -51,6 +52,11 @@ int main(int argc, char *argv[]){
   {
     // Se obtiene el paquete de uno de los clientes
     int msg_code = server_receive_id(sockets_array[my_attention]);
+
+    if(msg_code == 0){
+      my_attention = (my_attention + 1) % 2;
+      continue;
+    }
 
     printf("Mensaje : %d\n", msg_code);
     
@@ -79,7 +85,6 @@ int main(int argc, char *argv[]){
       }
 
       free(client_message);
-      my_attention = (my_attention + 1) % 2;
     }
 
     /** El cliente establece un nickname*/
@@ -97,8 +102,7 @@ int main(int argc, char *argv[]){
       game->players[my_attention] = p;
       game->n_players++;
 
-      char* id = (char*)calloc(2,sizeof(char));
-      id[0] = p->id;
+      char id[2] = {p->id, '\0'};
 
       //Enviamos el id del jugador
       server_send_message(sockets_array[my_attention], 6, id);
@@ -106,7 +110,7 @@ int main(int argc, char *argv[]){
       if(write_file_log){
         write_log(6, id, my_attention);
       }
-      free(id);
+
       //Si se encuentra un contrincante
       if(game->n_players>=2){
 
@@ -123,26 +127,24 @@ int main(int argc, char *argv[]){
           if(write_file_log){
             write_log(5, game->players[adversario]->name, i);
           }
-          char* partida = (char*)calloc(2,sizeof(char));
-          partida[0] = game->partida;
+
+
+          char partida[2] = {game->partida, '\0'};
           //Avisamos que inicio la partida
           server_send_message(sockets_array[i], 7, partida);
            //Escribimos en el log file
           if(write_file_log){
             write_log(7, partida, i);
           }
-          free(partida);
 
           // Enviamos los puntajes 
-          char* points = (char*)calloc(3, sizeof(char));
-          points[0] = p->points;
-          points[1] = game->players[adversario]->points;
+          char points[3] = {p->points, game->players[adversario]->points, '\0'};
+
           server_send_message(sockets_array[i], 8, points);
           //Escribimos en el log file
           if(write_file_log){
             write_log(8, points, i);
           }
-          free(points);
 
           // Enviamos las primeras palabras          
           server_send_message(sockets_array[i], 9, game->words);
@@ -153,7 +155,6 @@ int main(int argc, char *argv[]){
         }
       }
       free(client_message);
-      my_attention = (my_attention + 1) % 2;
     }
 
     /** El cliente manda una palabra respuesta*/
@@ -164,13 +165,9 @@ int main(int argc, char *argv[]){
       if(write_file_log){
         write_log(msg_code, client_message, my_attention);
       }
-
       int adversario = (my_attention + 1) % 2;
       
       Player* p = game->players[my_attention];
-
-      printf("Lo que manda el cliente = %s\n", client_message);
-      printf("La respuesta correcta = %s\n", game->answer);
 
       //Si le quedan intentos y aun no contesta
       if(p->aim > 0 && !p->answer){
@@ -181,9 +178,7 @@ int main(int argc, char *argv[]){
 
         // Si la respuesta es correcta
         if(strcmp(client_message, game->answer) == 0){
-          char* response = (char*)calloc(3, sizeof(char));
-          response[0] = 1;
-          response[1] = p->aim;
+          char response[3] = {1, p->aim, '\0'};
 
           //Enviamos la respuesta y los intentos
           server_send_message(sockets_array[my_attention], 11, response);
@@ -191,7 +186,6 @@ int main(int argc, char *argv[]){
           if(write_file_log){
             write_log(11, response, my_attention);
           }
-          free(response);
 
           //Guardamos que el usuario ha respondido
           p->answer = true;
@@ -214,9 +208,7 @@ int main(int argc, char *argv[]){
         }
         //Si la respuesta es incorrecta
         else{
-          char* response = (char*)calloc(3, sizeof(char));
-          response[0] = 0;
-          response[1] = p->aim;
+          char response[3] = {0, p->aim, '\0'};
 
           //Enviamos la respuesta y los intentos
           server_send_message(sockets_array[my_attention], 11, response);
@@ -225,7 +217,6 @@ int main(int argc, char *argv[]){
           if(write_file_log){
             write_log(11, response, my_attention);
           }
-          free(response);
 
           //Si ya no me quedan intentos
           if(p->aim == 0){
@@ -247,7 +238,8 @@ int main(int argc, char *argv[]){
       //Si ambos jugadores contestaron, la ronda termina
       if(p->answer && game->players[adversario]->answer){
 
-        char* round_winner = (char*)calloc(2, sizeof(char));
+        char round_winner[2];
+        round_winner[1] = '\0';
         //El ganador es el jugador actual
         if (p->round_point > game->players[adversario]->round_point){
           round_winner[0] = p->id;
@@ -258,7 +250,7 @@ int main(int argc, char *argv[]){
           round_winner[0] = game->players[adversario]->id;
         }
         //Hay empate entre los jugadores
-        else if (p->round_point < game->players[adversario]->round_point){
+        else if (p->round_point == game->players[adversario]->round_point){
           round_winner[0] = 0;
         }
         //Avisamos a ambos jugadores del ganador
@@ -269,16 +261,15 @@ int main(int argc, char *argv[]){
             write_log(12, round_winner, i);
           }
         }
-        free(round_winner);
 
         //Avanzamos en la ronda
         game->round++;
 
         //Se termina la partida
-        if(game->round == 5){
+        if(game->round > 5){
 
-          char* partida = (char*)calloc(2,sizeof(char));
-          partida[0] = game->partida;
+          char partida[2] = {game->partida, '\0'};
+
           //Avisamos el fin de la partida
           for (int i = 0; i < 2; ++i)
           {
@@ -288,9 +279,9 @@ int main(int argc, char *argv[]){
               write_log(13, partida, i);
             }
           }
-          free(partida);
 
-          char* winner = (char*)calloc(2, sizeof(char));
+          char winner[2];
+          winner[1] = '\0';
           //El ganador de la partida es el jugador actual
           if(game->players[0]->points > game->players[1]->points){
             winner[0] = game->players[0]->id;
@@ -327,7 +318,6 @@ int main(int argc, char *argv[]){
               write_log(15, "", i);
             }
           }
-          free(winner);
         }
 
         //Avanza a la siguiente ronda
@@ -345,15 +335,13 @@ int main(int argc, char *argv[]){
             p->aim = 3;  //Restauramos los intentos
 
             // Enviamos los puntajes
-            char* points = (char*)calloc(3,sizeof(char));
-            points[0] = p->points;
-            points[1] = game->players[(i + 1) %2]->points;
+            char points[3] = {p->points, game->players[(i + 1) %2]->points, '\0'};
+
             server_send_message(sockets_array[i], 8, points);
             //Escribimos en el log file
             if(write_file_log){
               write_log(8, points, i);
             }
-            free(points);
 
             // Enviamos las nuevas palabras de la ronda        
             server_send_message(sockets_array[i], 9, game->words);
@@ -365,7 +353,6 @@ int main(int argc, char *argv[]){
         }
       }
       free(client_message);
-      my_attention = (my_attention + 1) % 2;
     }
 
 
@@ -399,6 +386,7 @@ int main(int argc, char *argv[]){
             if(write_file_log){
               write_log(17, "", i);
             }
+            break;
           }
         }
 
@@ -416,26 +404,23 @@ int main(int argc, char *argv[]){
           new_words(game, file_words);
 
           for(int i=0; i<2 ; i++){
-            char* partida = (char*)calloc(2, sizeof(char));
-            partida[0] = game->partida;
+            char partida[2] = {game->partida, '\0'};
             //Avisamos que inicio la partida
             server_send_message(sockets_array[i], 7, partida);
             //Escribimos en el log file
             if(write_file_log){
               write_log(7, partida, i);
             }
-            free(partida);
 
             // Enviamos los puntajes
-            char* points = (char*)calloc(3,sizeof(char));
-            points[0] = p->points;
-            points[1] = game->players[(i + 1) %2]->points;
+            char points[3] ={p->points, game->players[(i + 1) %2]->points, '\0'};
+
             server_send_message(sockets_array[i], 8, points);
             //Escribimos en el log file
             if(write_file_log){
               write_log(8, points, i);
             }
-            free(points);
+
             // Enviamos las primeras palabras          
             server_send_message(sockets_array[i], 9, game->words);
             //Escribimos en el log file
@@ -450,7 +435,6 @@ int main(int argc, char *argv[]){
       }
 
       free(client_message);
-      my_attention = (my_attention + 1) % 2;
     }
 
     /** El cliente se desconecta*/
@@ -464,8 +448,7 @@ int main(int argc, char *argv[]){
       int adversario = (my_attention + 1) % 2;
 
       //El ganador es el jugador que no se desconecta
-      char* winner = (char*)calloc(2, sizeof(char));
-      winner[0] = game->players[adversario]->id;
+      char winner[2] = {game->players[adversario]->id, '\0'};
 
       for (int i = 0; i < 2; ++i)
       {
@@ -483,24 +466,12 @@ int main(int argc, char *argv[]){
         }
       }
       //Liberamos la memoria
-      free(winner);
       free(client_message);
-
-      //Escuchamos al otro cliente
-      my_attention = (my_attention + 1) % 2;
-      sleep(0.2);
-      break;
-    }
-
-    /** Desconexion repentina de cliente*/
-    else if(msg_code == 0){
-      printf("Uno o mas clientes se ha desconectado de manera inesperada..\n");
-      printf("Terminando ejecucion de servidor...\n");
       break;
     }
 
     /** Paquete incorrecto */
-    else {
+    else if(msg_code != 0){
       char * client_message = server_receive_payload(sockets_array[my_attention]);
       //Escribimos en el log file
       if(write_file_log){
@@ -516,9 +487,9 @@ int main(int argc, char *argv[]){
       }
 
       free(client_message);
-      my_attention = (my_attention + 1) % 2;
     }
-
+    //Escuchamos al otro cliente
+    my_attention = (my_attention + 1) % 2;
     printf("------------------\n");
   }
 

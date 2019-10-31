@@ -73,6 +73,7 @@ int main (int argc, char *argv[]){
       client_send_message(server_socket, 4, name);
 
       free(message);
+      free(name);
     }
     /** Se encontro oponente para la partida*/
     else if (msg_code == 5) { 
@@ -121,7 +122,6 @@ int main (int argc, char *argv[]){
       // Pedimos respuesta del cliente
       printf("\nIngrese la palabra repetida o Disconnect para salir:\t");
       char* response = get_input();
-      printf("Lo que sale de consola = %s\n", response);
 
       char* upper = uppercase(response);
 
@@ -137,6 +137,7 @@ int main (int argc, char *argv[]){
       //Liberamos la memoria
       free(upper);
       free(message);
+      free(response);
     }
 
     /** Resultado de respuesta*/

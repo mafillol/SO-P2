@@ -21,7 +21,7 @@ Para el correcto funcionamiento del cliete, dentro de la carpeta src deben encon
 
 ### Inicio
 Es necesario que el servidor se encuentre corriendo para poder conectar a los clientes.
-Una vez que el servidor se encuentre corriendo, es necesario que los dos clientes se conecten a el para que comience a funcionar el programa. No es necesario que los clientes envien *StartConnection*, pero es necesario que los socket se encuentren conectados.
+Una vez que el servidor se encuentre corriendo, los clientes tienen un lapso de 5 segundos para poder conectarse a traves del socket al servidor. Pasado ese tiempo, la conexion ya no se acepta. La razon de esto es que se ha decidido agregar un timeout para que, una vez los jugadores inicien la partida, la respuesta del servidor pueda ser lo mas rapida e interactiva posible.
 
 
 ## Supuestos
