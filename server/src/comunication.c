@@ -34,16 +34,16 @@ void server_send_message(int client_socket, int pkg_id, char * message){
 int real_size_payload(int pkg_id, char* message){
   int payloadSize;
 
-  if(pkg_id == 3 || pkg_id == 12 || pkg_id == 6 || pkg_id == 14 || pkg_id == 13){
+  if(pkg_id==6 || pkg_id == 7|| pkg_id == 12 || pkg_id ==13 || pkg_id == 14 || pkg_id == 16){
     payloadSize = 1;
+  }
+
+  else if(pkg_id == 8){
+    payloadSize = 2;
   }
 
   else if(pkg_id == 9){
     payloadSize = real_size_long_string(message);
-  }
-
-  else if(pkg_id == 11 || pkg_id == 8){
-    payloadSize = 2;
   }
 
   else{

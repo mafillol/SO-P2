@@ -30,11 +30,14 @@ char** get_random_cards(char* file_name){
 	}
 
 	int total_size = 0; //Largo total del payload
+	int count = 0;
 
 	//Escogemos las 19 palabras
-	for(int i=0; i<19; i++){
+	while(count<19){
 		char* random_word = words[rand() % 500];
 		bool save = false;
+		//Si la palabra ya fue seleccionada, escogemos otra
+		if(word_in_array(random_word, cards)) continue;
 		//Mientras no guardemos la palabra escogida
 		while(!save){
 			//Seleccionamos una fila al azar para guardarla
@@ -63,9 +66,10 @@ char** get_random_cards(char* file_name){
 				save = true;
 			}
 		}
+		count ++;
 	}
 
-	char* answer = (char*) calloc(500,sizeof(char));
+	char* answer = (char*) calloc(500,sizeof(char));;
 
 	//Para todas las filas de cartas
 	for(int i=0; i<20; i++){
@@ -163,6 +167,24 @@ void print_words(char* long_string){
 		count++;
 		aux = aux + largo + 2;
 	}
+}
+
+/** Retorna true o false si la palabra se encuentra en la lista*/
+bool word_in_array(char* word, char** cards){
+	int largo; //Largo de la palabra
+	char w[strlen(word) + 1]; //Palabra
+	sscanf(word, "%d,%s",&largo, w);
+	for(int i=0; i<20; i++){
+		//Si hay una carta
+		if(cards[i]){
+			//Si la palabra se encuentra
+			if(strstr(&cards[i][1], w) != NULL){
+				return true;
+			}
+		}
+	}
+	//Nunca encontramos la palabra
+	return false;
 }
 
 //Funcion auxiliar. Quita el salto de linea a un string

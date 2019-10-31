@@ -13,7 +13,7 @@ int PORT;
 bool write_file_log = false;
 
 char * get_input(){
-  char * response = malloc(20);
+  char * response = calloc(40, sizeof(char));
   int pos=0;
   while (1){
     char c = getchar();
@@ -121,6 +121,7 @@ int main (int argc, char *argv[]){
       // Pedimos respuesta del cliente
       printf("\nIngrese la palabra repetida o Disconnect para salir:\t");
       char* response = get_input();
+      printf("Lo que sale de consola = %s\n", response);
 
       char* upper = uppercase(response);
 

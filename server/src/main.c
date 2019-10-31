@@ -15,6 +15,7 @@ bool write_file_log = false;
 char * IP;
 int PORT;
 
+
 int main(int argc, char *argv[]){
 
   // Se define una IP, un puerto y logs
@@ -168,6 +169,9 @@ int main(int argc, char *argv[]){
       
       Player* p = game->players[my_attention];
 
+      printf("Lo que manda el cliente = %s\n", client_message);
+      printf("La respuesta correcta = %s\n", game->answer);
+
       //Si le quedan intentos y aun no contesta
       if(p->aim > 0 && !p->answer){
         //Disminuimos los intentos restantes
@@ -310,7 +314,7 @@ int main(int argc, char *argv[]){
 
             // Avisamos el ganador de la partida     
             server_send_message(sockets_array[i], 14, winner);
-            
+
             //Escribimos en el log file
             if(write_file_log){
               write_log(14, winner, i);
@@ -488,8 +492,15 @@ int main(int argc, char *argv[]){
       break;
     }
 
+    /** Desconexion repentina de cliente*/
+    else if(msg_code == 0){
+      printf("Uno o mas clientes se ha desconectado de manera inesperada..\n");
+      printf("Terminando ejecucion de servidor...\n");
+      break;
+    }
+
     /** Paquete incorrecto */
-    else if(msg_code != 0){
+    else {
       char * client_message = server_receive_payload(sockets_array[my_attention]);
       //Escribimos en el log file
       if(write_file_log){

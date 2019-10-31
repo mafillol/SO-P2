@@ -34,6 +34,9 @@ void uppercase(char* word);
 //https://cboard.cprogramming.com/c-programming/70320-how-remove-newline-string.html
 void strip(char* string);
 
+/** Retorna true o false si la palabra se encuentra en la lista*/
+bool word_in_array(char* word, char** cards);
+
 //////////////////////////////////////////
 ///         FUNCIONES PUBLICAS         ///
 //////////////////////////////////////////
