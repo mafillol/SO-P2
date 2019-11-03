@@ -30,6 +30,7 @@ Cuando un usuario decide desconectarse, pierde inmediatamente la partida.
 Al terminar una partida e iniciar una nueva, los puntajes de los clientes vuelven a 0.
 Cuando ocurre una caida inesperada del servidor, se avisa al cliente por consola y el programa termina.
 Cuando el cliente manda un paquete mal construido o con un id incorrecto, el servidor envia el error al cliente, luego envia a ambos clientes una desconexion, y finalmente termina el programa.
+El *MessageType ID = 0* se encuentra protegido para determinar cuando el servidor ha sido desconectado de manera repentina.
 
 
 ## Consideraciones: Paquetes mal construidos
