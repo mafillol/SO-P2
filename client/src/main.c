@@ -38,10 +38,10 @@ int main (int argc, char *argv[]){
       IP = argv[i+1];
     }
     if(strcmp(argv[i], "-p") == 0){
-      PORT = argv[i+1] - "0";
+      PORT = atoi(argv[i+1]);
     }
   }
-  
+
   // Se prepara el socket
   int server_socket = prepare_socket(IP, PORT);
 
@@ -57,11 +57,17 @@ int main (int argc, char *argv[]){
     int msg_code = client_receive_id(server_socket);
 
     /** Establecemos conexion con el servidor*/
-    if (msg_code == 2) { 
+    if (msg_code == 2) {
       char * message = client_receive_payload(server_socket);
+      if(size_payload != 0){
+        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("Terminando ejecución cliente...\n");
+        free(message);
+        break;
+      }
       //Escribimos en el log file
       if(write_file_log){
-        write_log(msg_code, message, size_payload);
+        write_log(msg_code, "", size_payload);
       }
       printf("Conexion establecida con servidor...\n");
       free(message);
@@ -70,6 +76,12 @@ int main (int argc, char *argv[]){
     /** Establecemos un nickname*/
     else if (msg_code == 3) { 
       char * message = client_receive_payload(server_socket);
+      if(size_payload != 0){
+        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("Terminando ejecución cliente...\n");
+        free(message);
+        break;
+      }
 
       //Escribimos en el log file
       if(write_file_log){
@@ -87,13 +99,20 @@ int main (int argc, char *argv[]){
       if(write_file_log){
         write_log(4, name, 0);
       }
-
-      free(message);
       free(name);
+      free(message);
     }
     /** Se encontro oponente para la partida*/
     else if (msg_code == 5) { 
       char * message = client_receive_payload(server_socket);
+
+      if(size_payload == 0){
+        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("Terminando ejecución cliente...\n");
+        free(message);
+        break;
+      }
+
       //Escribimos en el log file
       if(write_file_log){
         write_log(msg_code, message, size_payload);
@@ -112,6 +131,13 @@ int main (int argc, char *argv[]){
         write_log(msg_code, message, size_payload);
       }
 
+      if(size_payload != 1){
+        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("Terminando ejecución cliente...\n");
+        free(message);
+        break;
+      }
+
       printf("Tu id personal es: %d\n", (int)message[0]);
 
       ID = message[0];
@@ -126,6 +152,13 @@ int main (int argc, char *argv[]){
         write_log(msg_code, message, size_payload);
       }
 
+      if(size_payload != 1){
+        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("Terminando ejecución cliente...\n");
+        free(message);
+        break;
+      }
+
       printf("Partida %d iniciada.\n", (int)message[0]);
 
       free(message);
@@ -137,6 +170,13 @@ int main (int argc, char *argv[]){
       //Escribimos en el log file
       if(write_file_log){
         write_log(msg_code, message, size_payload);
+      }
+
+      if(size_payload != 2){
+        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("Terminando ejecución cliente...\n");
+        free(message);
+        break;
       }
 
       printf("Tu puntaje es: %d\tEl puntaje de tu contrincante es: %d\n", (int)message[0],(int)message[1]);
@@ -192,6 +232,12 @@ int main (int argc, char *argv[]){
       if(write_file_log){
         write_log(msg_code, message, size_payload);
       }
+      if(size_payload != 2){
+        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("Terminando ejecución cliente...\n");
+        free(message);
+        break;
+      }
       int response = message[0];
       int aim = message[1];
       int try;
@@ -225,6 +271,12 @@ int main (int argc, char *argv[]){
       if(write_file_log){
         write_log(msg_code, message, size_payload);
       }
+      if(size_payload != 1){
+        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("Terminando ejecución cliente...\n");
+        free(message);
+        break;
+      }
       int response = message[0];
 
       //Ronda empatada
@@ -250,6 +302,12 @@ int main (int argc, char *argv[]){
       if(write_file_log){
         write_log(msg_code, message, size_payload);
       }
+      if(size_payload != 1){
+        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("Terminando ejecución cliente...\n");
+        free(message);
+        break;
+      }
       printf("Partida %d terminada.\n", message[0]);
       free(message);
     }
@@ -260,6 +318,12 @@ int main (int argc, char *argv[]){
       //Escribimos en el log file
       if(write_file_log){
         write_log(msg_code, message, size_payload);
+      }
+      if(size_payload != 1){
+        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("Terminando ejecución cliente...\n");
+        free(message);
+        break;
       }
       int response = message[0];
 
@@ -280,6 +344,12 @@ int main (int argc, char *argv[]){
       //Escribimos en el log file
       if(write_file_log){
         write_log(msg_code, message, size_payload);
+      }
+      if(size_payload != 0){
+        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("Terminando ejecución cliente...\n");
+        free(message);
+        break;
       }
       bool answer = false;
       while(!answer){
@@ -320,6 +390,12 @@ int main (int argc, char *argv[]){
       if(write_file_log){
         write_log(msg_code, message, size_payload);
       }
+      if(size_payload != 0){
+        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("Terminando ejecución cliente...\n");
+        free(message);
+        break;
+      }
       printf("Desconectando del servidor...\n");
       ID = 0;
       free(message);
@@ -344,6 +420,12 @@ int main (int argc, char *argv[]){
       printf("Terminando programa....\n");
       free(message);
       break;
+    }
+
+    /** ID no implementado por cliente*/
+    else{
+      char * message = client_receive_payload(server_socket);
+      free(message);
     }
 
     printf("------------------\n");

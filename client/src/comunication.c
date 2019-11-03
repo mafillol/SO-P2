@@ -16,15 +16,18 @@ char * client_receive_payload(int client_socket){
   size_payload = len;
 
   // Se obtiene el payload
-  char * payload = malloc(len);
-  int received = recv(client_socket, payload, len, 0);
+  char * payload = calloc(len + 1, sizeof(char));
+
+  if(len != 0){
+    int received = recv(client_socket, payload, len, 0);
+  }
+
   // Se retorna
   return payload;
 }
 
 void client_send_message(int client_socket, int pkg_id, char * message){
-  int payloadSize = real_size_payload(pkg_id,message) + 1; //+1 para considerar el caracter nulo. 
-  //Esto solo es válido para strings, Ustedes cuando armen sus paquetes saben exactamente cuantos bytes tiene el payload.
+  int payloadSize = real_size_payload(pkg_id,message); 
   
   // Se arma el paquete
   char msg[1+1+payloadSize];
@@ -40,7 +43,7 @@ void client_send_message(int client_socket, int pkg_id, char * message){
 int real_size_payload(int pkg_id, char* message){
   int payloadSize;
 
-  if(pkg_id ==6 || pkg_id == 7|| pkg_id == 12 || pkg_id ==13 || pkg_id == 14 || pkg_id == 16){
+  if(pkg_id == 6 || pkg_id == 7|| pkg_id == 12 || pkg_id ==13 || pkg_id == 14 || pkg_id == 16){
     payloadSize = 1;
   }
 

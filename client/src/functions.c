@@ -180,7 +180,6 @@ char* uppercase(char* word){
 // Obtenida de link: http://www.informit.com/articles/article.aspx?p=23618&seqNum=8
 /** Funcion encargada de escribir en log*/
 void write_log(int pkg_id, char* message, int size){
-	size = size - 1;
 	// Abro el archivo
 	FILE* file_logs = fopen("log.txt", "a");
 

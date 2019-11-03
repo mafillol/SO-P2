@@ -235,7 +235,6 @@ void new_words(Game* game, char* file_words){
 // Obtenida de link: http://www.informit.com/articles/article.aspx?p=23618&seqNum=8
 /** Funcion encargada de escribir en log*/
 void write_log(int pkg_id, char* message, int socket, int size){
-	size = size - 1; //Quitamos el byte de fin de string
 	// Abro el archivo
 	FILE* file_logs = fopen("log.txt", "a");
 

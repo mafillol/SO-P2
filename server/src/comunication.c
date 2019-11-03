@@ -15,14 +15,18 @@ char * server_receive_payload(int client_socket){
   //Guardamos el valor
   size_payload = len;
   // Se obtiene el payload
-  char * payload = malloc(len);
-  int received = recv(client_socket, payload, len, 0);
+  char * payload = calloc(len+1, sizeof(char));
+
+  if(len != 0){
+    int received = recv(client_socket, payload, len, 0);
+  }
+
   // Se retorna
   return payload;
 }
 
 void server_send_message(int client_socket, int pkg_id, char * message){
-  int payloadSize = real_size_payload(pkg_id,message) + 1;
+  int payloadSize = real_size_payload(pkg_id,message);
   //printf("payload size: %d\n", payloadSize);
   // Se arma el paquete
   char msg[1+1+payloadSize];

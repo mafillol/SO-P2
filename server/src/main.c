@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
       IP = argv[i+1];
     }
     if(strcmp(argv[i], "-p") == 0){
-      PORT = argv[i+1] - "0";
+      PORT = atoi(argv[i+1]);
     }
   }
 
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]){
       }
 
       //Paquete mal construido
-      if(strlen(client_message) != 0 || (size_payload != 0 && size_payload != 1)){
+      if(size_payload != 0){
         //Avisamos que el paquete esta mal construido
         server_send_message(sockets_array[my_attention], 20, "");
         //Escribimos en el log file
@@ -116,7 +116,7 @@ int main(int argc, char *argv[]){
       }
 
       //Paquete mal construido
-      if(strlen(client_message) == 0 || size_payload == 0){
+      if(size_payload == 0){
         //Avisamos que el paquete esta mal construido
         server_send_message(sockets_array[my_attention], 20, "");
         //Escribimos en el log file
@@ -144,14 +144,6 @@ int main(int argc, char *argv[]){
       game->players[my_attention] = p;
       game->n_players++;
 
-      char id[2] = {p->id, '\0'};
-
-      //Enviamos el id del jugador
-      server_send_message(sockets_array[my_attention], 6, id);
-      //Escribimos en el log file
-      if(write_file_log){
-        write_log(6, id, my_attention, 0);
-      }
 
       //Si se encuentra un contrincante
       if(game->n_players>=2){
@@ -168,6 +160,15 @@ int main(int argc, char *argv[]){
           //Escribimos en el log file
           if(write_file_log){
             write_log(5, game->players[adversario]->name, i, 0);
+          }
+
+          char id[2] = {game->players[i]->id, '\0'};
+
+          //Enviamos el id del jugador
+          server_send_message(sockets_array[i], 6, id);
+          //Escribimos en el log file
+          if(write_file_log){
+            write_log(6, id, i, 0);
           }
 
 
@@ -209,7 +210,7 @@ int main(int argc, char *argv[]){
       }
 
       //Paquete mal construido
-      if(strlen(client_message) != 0 || (size_payload != 0 && size_payload != 1)){
+      if(size_payload == 0){
         //Avisamos que el paquete esta mal construido
         server_send_message(sockets_array[my_attention], 20, "");
         //Escribimos en el log file
@@ -429,7 +430,7 @@ int main(int argc, char *argv[]){
         write_log(msg_code, client_message, my_attention, size_payload);
       }
       //Paquete mal construido
-      if(strlen(client_message) != 0 || (size_payload != 0 && size_payload != 1)){
+      if(size_payload != 1){
         //Avisamos que el paquete esta mal construido
         server_send_message(sockets_array[my_attention], 20, "");
         //Escribimos en el log file
@@ -546,7 +547,7 @@ int main(int argc, char *argv[]){
       }
 
       //Paquete mal construido
-      if(strlen(client_message) != 0 || (size_payload != 0 && size_payload != 1)){
+      if(size_payload != 0){
         //Avisamos que el paquete esta mal construido
         server_send_message(sockets_array[my_attention], 20, "");
         //Escribimos en el log file
