@@ -55,8 +55,6 @@ int main(int argc, char *argv[]){
       my_attention = (my_attention + 1) % 2;
       continue;
     }
-
-    printf("Mensaje : %d\n", msg_code);
     
      /** El cliente desea inicar una partida*/
     if (msg_code == 1)
@@ -543,7 +541,7 @@ int main(int argc, char *argv[]){
 
       //Escribimos en el log file
       if(write_file_log){
-        write_log(17, client_message, my_attention, size_payload);
+        write_log(17, client_message, my_attention, -1);
       }
 
       //Paquete mal construido
@@ -624,7 +622,6 @@ int main(int argc, char *argv[]){
     }
     //Escuchamos al otro cliente
     my_attention = (my_attention + 1) % 2;
-    printf("------------------\n");
   }
 
   // Se cierra el socket

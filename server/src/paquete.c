@@ -22,18 +22,23 @@ char** get_random_cards(char* file_name){
 
 	//Guardamos en una lista cada una de las palabras del archivo
 	for(int i=0; i<500; i++){
+		//Leemos la siguiente linea del archivo
 		getline(&line, &size, file);
+		//Eliminamos el salto de linea
 		strip(line);
+		//Obtenemos el largo de la linea
 		int len = strlen(line);
+		//Guardamos la linea en la lista de palabras
 		words[i] = (char*) malloc((len+2)*sizeof(char));
 		strcpy(words[i], line);
 	}
 
 	int total_size = 0; //Largo total del payload
-	int count = 0;
+	int count = 0; //Cantidad de palabras seleccionadas
 
 	//Escogemos las 19 palabras
 	while(count<19){
+		//Escogemos una palabra al azar
 		char* random_word = words[rand() % 500];
 		bool save = false;
 		//Si la palabra ya fue seleccionada, escogemos otra
@@ -42,13 +47,14 @@ char** get_random_cards(char* file_name){
 		while(!save){
 			//Seleccionamos una fila al azar para guardarla
 			int pos_random = rand() % 20;
+			//Si la posicion no esta ocupada por otra palabra
 			if(!cards[pos_random]){
 				int largo; //Largo de la palabra
 				char word[strlen(random_word) + 1]; //Palabra
 				sscanf(random_word, "%d,%s",&largo, word);
 				cards[pos_random] = (char*) calloc(largo+3,sizeof(char));
 
-				total_size = total_size + largo + 2;
+				total_size = total_size + largo + 2; //Aumentamos el largo total
 
 				//Columna random para la carta
 				uint8_t random_col = rand() % 20;
@@ -63,12 +69,15 @@ char** get_random_cards(char* file_name){
 				memcpy(&cards[pos_random][1], word, largo);
 				//Agregamos la posicion al final de la palabra
 				cards[pos_random][largo+1] = random_col;
+				//Avisamos que guardamos correctamente la palabra
 				save = true;
 			}
 		}
+		//Aumentamos el numero de palabras seleccionadas
 		count ++;
 	}
 
+	//Declaramos la respuesta de 
 	char* answer = (char*) calloc(500,sizeof(char));;
 
 	//Para todas las filas de cartas
@@ -126,12 +135,13 @@ char** get_random_cards(char* file_name){
 	for(int i=0; i<500;i++){
 		free(words[i]);
 	}
-	//Eliminamos la lista de palabras
+	//Eliminamos la lista completa de palabras
 	free(words);
-
+	//Eliminamos cada una de las palabras escogidas
 	for(int i=0;i<20;i++){
 		free(cards[i]);
 	}
+	//Eliminamos la lista de palabras escogidas
 	free(cards);
 	//Retornamos las cartas
 	return payload;
@@ -242,20 +252,20 @@ void write_log(int pkg_id, char* message, int socket, int size){
  	struct tm* ptm;
  	char time_string[40];
  	
- 	// Obtain the time of day, and convert it to a tm struct
-  gettimeofday (&tv, NULL);
-  ptm = localtime (&tv.tv_sec);long milliseconds;
+ 	//Obtenemos el tiempo y lo convertimos en tm struct
+	gettimeofday (&tv, NULL);
+	ptm = localtime (&tv.tv_sec);long milliseconds;
 
-  ///Format the date and time, down to a single second
+	//Damos formato al tiempo en un solo string
  	strftime(time_string, sizeof (time_string), "%Y-%m-%d %H:%M:%S", ptm);
 
  	//Obtenemmos los milisegundos de los microsegundos
  	milliseconds = tv.tv_usec / 1000;
 
- 	// Estribimos el tiempo en el archivo
+ 	// Escribimos el tiempo en el archivo
  	fprintf(file_logs, "[%s.%03ld] ", time_string, milliseconds);
 
- 	//Cambiar como obtener largo payload
+
 	if(pkg_id == 1){
 		fprintf(file_logs, "[SERVER][PKGE IN] AskConnection received. Package: %d %d %s\n",pkg_id,size, message);
 	}
@@ -317,7 +327,10 @@ void write_log(int pkg_id, char* message, int socket, int size){
 		fprintf(file_logs, "[SERVER][PKGE OUT] AskNewGame sended to socket %d. Package: %d %d %s\n",socket+1,pkg_id,(int)strlen(message), message);
 	}
 	else if(pkg_id == 16){
-		fprintf(file_logs, "[SERVER][PKGE IN] AnswerNewGame received from socket %d. Package: %d %d %d", socket+1, pkg_id, size, (int)message[0]);
+		fprintf(file_logs, "[SERVER][PKGE IN] AnswerNewGame received from socket %d. Package: %d %d %d\n", socket+1, pkg_id, size, (int)message[0]);
+	}
+	else if(pkg_id == 17 && size == -1){
+		fprintf(file_logs, "[SERVER][PKGE IN] Disconnect received from socket %d. Package: %d %d %s\n", socket+1, pkg_id, (int)strlen(message), message);
 	}
 	else if(pkg_id == 17){
 		fprintf(file_logs, "[SERVER][PKGE OUT] Disconnect sended to socket %d. Package: %d %d %s\n", socket+1, pkg_id, (int)strlen(message), message);
@@ -337,4 +350,6 @@ void write_log(int pkg_id, char* message, int socket, int size){
 // https://cboard.cprogramming.com/c-programming/70320-how-remove-newline-string.html //
 // Funcion string a mayusculas obtenida de                                            //
 // https://stackoverflow.com/questions/35181913/converting-char-to-uppercase-in-c     //
+// Forma de escribir time strap obtenida de                                           //
+// http://www.informit.com/articles/article.aspx?p=23618&seqNum=8                     //
 ////////////////////////////////////////////////////////////////////////////////////////

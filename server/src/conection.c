@@ -24,7 +24,7 @@ PlayersInfo * prepare_sockets_and_get_clients(char * IP, int port){
 
   //Agregamos un timeout 
   struct timeval tv;
-  tv.tv_sec = 5; //Timeout de 5 segundos
+  tv.tv_sec = 2; //Timeout de 5 segundos
   tv.tv_usec = 0;
   setsockopt(server_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
 
@@ -40,10 +40,16 @@ PlayersInfo * prepare_sockets_and_get_clients(char * IP, int port){
   // Se inicializa una estructura propia para guardar los n°s de sockets de los clientes.
   PlayersInfo * sockets_clients = malloc(sizeof(PlayersInfo));
   sockets_clients;
+  sockets_clients->socket_c1 = -1;
+  sockets_clients->socket_c2 = -1;
 
   // Se aceptan a los primeros 2 clientes que lleguen. "accept" retorna el n° de otro socket asignado para la comunicación
-  sockets_clients->socket_c1 = accept(server_socket, (struct sockaddr *)&client1_addr, &addr_size);
-  sockets_clients->socket_c2 = accept(server_socket, (struct sockaddr *)&client2_addr, &addr_size);
+  while(sockets_clients->socket_c1 == -1){
+    sockets_clients->socket_c1 = accept(server_socket, (struct sockaddr *)&client1_addr, &addr_size);
+  }
+  while(sockets_clients->socket_c2 == -1){
+    sockets_clients->socket_c2 = accept(server_socket, (struct sockaddr *)&client2_addr, &addr_size);
+  }
 
   return sockets_clients;
 }

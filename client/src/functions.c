@@ -187,11 +187,11 @@ void write_log(int pkg_id, char* message, int size){
  	struct tm* ptm;
  	char time_string[40];
  	
- 	// Obtain the time of day, and convert it to a tm struct
-  gettimeofday (&tv, NULL);
-  ptm = localtime (&tv.tv_sec);long milliseconds;
+ 	//Obtenemos el tiempo y lo convertimos en tm struct
+	gettimeofday (&tv, NULL);
+	ptm = localtime (&tv.tv_sec);long milliseconds;
 
-  //Format the date and time, down to a single second
+	//Damos formato al tiempo en un solo string
  	strftime(time_string, sizeof (time_string), "%Y-%m-%d %H:%M:%S", ptm);
 
  	//Obtenemmos los milisegundos de los microsegundos
@@ -290,7 +290,10 @@ void write_log(int pkg_id, char* message, int size){
 		fprintf(file_logs, "[CLIENT][PKGE IN] AskNewGame sended from server. Package: %d %d %s\n", pkg_id, size, message);
 	}
 	else if(pkg_id == 16){
-		fprintf(file_logs, "[CLIENT][PKGE OUT] AnswerNewGame send to server. Package: %d %d %d", pkg_id, real_size_payload(pkg_id, message), (int)message[0]);
+		fprintf(file_logs, "[CLIENT][PKGE OUT] AnswerNewGame send to server. Package: %d %d %d\n", pkg_id, real_size_payload(pkg_id, message), (int)message[0]);
+	}
+	else if(pkg_id == 17 && size == -1){
+		fprintf(file_logs, "[CLIENT][PKGE OUT] Disconnect send to server. Package: %d %d %s\n", pkg_id, (int)strlen(message), message);
 	}
 	else if(pkg_id == 17){
 		fprintf(file_logs, "[CLIENT][PKGE IN] Disconnect sended from server. Package: %d %d %s\n", pkg_id, size, message);
@@ -300,3 +303,14 @@ void write_log(int pkg_id, char* message, int size){
 	}
 	fclose(file_logs); 
 }
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+// IMPORTANTE - REFERENCIA                                                            //
+// Funcion string a mayusculas obtenida de                                            //
+// https://stackoverflow.com/questions/35181913/converting-char-to-uppercase-in-c     //
+// Forma de escribir time strap obtenida de                                           //
+// http://www.informit.com/articles/article.aspx?p=23618&seqNum=8                     //
+////////////////////////////////////////////////////////////////////////////////////////

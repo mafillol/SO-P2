@@ -60,7 +60,13 @@ int main (int argc, char *argv[]){
     if (msg_code == 2) {
       char * message = client_receive_payload(server_socket);
       if(size_payload != 0){
-        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("El servidor ha mandado un paquete mal construido.\n");
+        //Nos desconectamos
+        client_send_message(server_socket, 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", -1);
+        }
         printf("Terminando ejecución cliente...\n");
         free(message);
         break;
@@ -77,7 +83,13 @@ int main (int argc, char *argv[]){
     else if (msg_code == 3) { 
       char * message = client_receive_payload(server_socket);
       if(size_payload != 0){
-        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("El servidor ha mandado un paquete mal construido.\n");
+        //Nos desconectamos
+        client_send_message(server_socket, 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", -1);
+        }
         printf("Terminando ejecución cliente...\n");
         free(message);
         break;
@@ -107,7 +119,13 @@ int main (int argc, char *argv[]){
       char * message = client_receive_payload(server_socket);
 
       if(size_payload == 0){
-        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("El servidor ha mandado un paquete mal construido.\n");
+        //Nos desconectamos
+        client_send_message(server_socket, 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", -1);
+        }
         printf("Terminando ejecución cliente...\n");
         free(message);
         break;
@@ -132,7 +150,13 @@ int main (int argc, char *argv[]){
       }
 
       if(size_payload != 1){
-        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("El servidor ha mandado un paquete mal construido.\n");
+        //Nos desconectamos
+        client_send_message(server_socket, 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", -1);
+        }
         printf("Terminando ejecución cliente...\n");
         free(message);
         break;
@@ -153,7 +177,13 @@ int main (int argc, char *argv[]){
       }
 
       if(size_payload != 1){
-        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("El servidor ha mandado un paquete mal construido.\n");
+        //Nos desconectamos
+        client_send_message(server_socket, 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", -1);
+        }
         printf("Terminando ejecución cliente...\n");
         free(message);
         break;
@@ -173,7 +203,13 @@ int main (int argc, char *argv[]){
       }
 
       if(size_payload != 2){
-        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("El servidor ha mandado un paquete mal construido.\n");
+        //Nos desconectamos
+        client_send_message(server_socket, 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", -1);
+        }
         printf("Terminando ejecución cliente...\n");
         free(message);
         break;
@@ -207,7 +243,7 @@ int main (int argc, char *argv[]){
         client_send_message(server_socket, 17, "");
         //Escribimos en el log file
         if(write_file_log){
-          write_log(17, "", 0);
+          write_log(17, "", -1);
         }
       }
       // Enviamos respuesta al servidor
@@ -233,7 +269,13 @@ int main (int argc, char *argv[]){
         write_log(msg_code, message, size_payload);
       }
       if(size_payload != 2){
-        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("El servidor ha mandado un paquete mal construido.\n");
+        //Nos desconectamos
+        client_send_message(server_socket, 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", -1);
+        }
         printf("Terminando ejecución cliente...\n");
         free(message);
         break;
@@ -272,7 +314,13 @@ int main (int argc, char *argv[]){
         write_log(msg_code, message, size_payload);
       }
       if(size_payload != 1){
-        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("El servidor ha mandado un paquete mal construido.\n");
+        //Nos desconectamos
+        client_send_message(server_socket, 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", -1);
+        }
         printf("Terminando ejecución cliente...\n");
         free(message);
         break;
@@ -303,7 +351,13 @@ int main (int argc, char *argv[]){
         write_log(msg_code, message, size_payload);
       }
       if(size_payload != 1){
-        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("El servidor ha mandado un paquete mal construido.\n");
+        //Nos desconectamos
+        client_send_message(server_socket, 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", -1);
+        }
         printf("Terminando ejecución cliente...\n");
         free(message);
         break;
@@ -312,7 +366,7 @@ int main (int argc, char *argv[]){
       free(message);
     }
 
-    //Ganador de la partida
+    /** Ganador de la partida*/
     else if(msg_code == 14){
       char * message = client_receive_payload(server_socket);
       //Escribimos en el log file
@@ -320,15 +374,25 @@ int main (int argc, char *argv[]){
         write_log(msg_code, message, size_payload);
       }
       if(size_payload != 1){
-        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("El servidor ha mandado un paquete mal construido.\n");
+        //Nos desconectamos
+        client_send_message(server_socket, 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", -1);
+        }
         printf("Terminando ejecución cliente...\n");
         free(message);
         break;
       }
       int response = message[0];
 
+      //Partida empatada
+      if (response == 0){
+        printf("Has empatado la partida\n");
+      }
       //Partida ganada
-      if(response == ID){
+      else if(response == ID){
         printf("Felicidades!! Has ganado la partida.\n");
       }
       //Partida perdida
@@ -346,7 +410,13 @@ int main (int argc, char *argv[]){
         write_log(msg_code, message, size_payload);
       }
       if(size_payload != 0){
-        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("El servidor ha mandado un paquete mal construido.\n");
+        //Nos desconectamos
+        client_send_message(server_socket, 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", -1);
+        }
         printf("Terminando ejecución cliente...\n");
         free(message);
         break;
@@ -391,7 +461,13 @@ int main (int argc, char *argv[]){
         write_log(msg_code, message, size_payload);
       }
       if(size_payload != 0){
-        printf("El servidor ha mandado un paquete mal contruido.\n");
+        printf("El servidor ha mandado un paquete mal construido.\n");
+        //Nos desconectamos
+        client_send_message(server_socket, 17, "");
+        //Escribimos en el log file
+        if(write_file_log){
+          write_log(17, "", -1);
+        }
         printf("Terminando ejecución cliente...\n");
         free(message);
         break;
@@ -402,14 +478,14 @@ int main (int argc, char *argv[]){
       break; 
     }
 
-    /** Servidor manda paquete mal contruido o desconocido*/
+    /** Servidor manda paquete mal construido o desconocido*/
     else if(msg_code == 20){
       char * message = client_receive_payload(server_socket);
       //Escribimos en el log file
       if(write_file_log){
         write_log(msg_code, message, size_payload);
       }
-      printf("ERROR: ID desconocido o paquete mal contruido\n");
+      printf("ERROR: ID desconocido o paquete mal construido\n");
       free(message);
     }
 
